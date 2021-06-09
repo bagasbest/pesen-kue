@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Salwa</string>
+    <string name="image">image</string>
+    <string name="title_activity_home">MainActivity</string>
+    <string name="title_home">Produk</string>
+    <string name="title_dashboard">Keranjang</string>
+    <string name="title_notifications">Pemesanan</string>
+    <string name="button">button</string>
+</resources>

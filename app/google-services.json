@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "783759243126",
+    "project_id": "salwa-cookies",
+    "storage_bucket": "salwa-cookies.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783759243126:android:4aa0b7f29ba36056a36c57",
+        "android_client_info": {
+          "package_name": "com.salwa.salwa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "783759243126-confgft59vtn89c4oq0eebsk5ag2etae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZP4fYcYJvxZKxmAfUySInr2LwC3C8Anw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "783759243126-confgft59vtn89c4oq0eebsk5ag2etae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
