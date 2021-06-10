@@ -1,6 +1,7 @@
 package com.salwa.salwa.homepage.ui.product;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -48,6 +50,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         ImageView productDp;
         TextView titleTv, descriptionTv, priceTv, ratingTv;
+        ConstraintLayout card;
+
 
         public ProductViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -56,6 +60,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             descriptionTv = itemView.findViewById(R.id.description);
             priceTv = itemView.findViewById(R.id.price);
             ratingTv = itemView.findViewById(R.id.rating);
+            card = itemView.findViewById(R.id.itemProduct);
         }
 
         @SuppressLint({"SetTextI18n", "DefaultLocale"})
@@ -70,6 +75,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     .load(productModel.getImage())
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(productDp);
+
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(itemView.getContext(), DetailProductActivity.class);
+                    intent.putExtra(DetailProductActivity.ITEM_PRODUCT, productModel);
+                    itemView.getContext().startActivity(intent);
+                }
+            });
+
 
         }
     }

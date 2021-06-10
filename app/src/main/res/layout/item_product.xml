@@ -40,6 +40,7 @@
         android:layout_height="wrap_content"
         android:text="Ini deskripsi produk saya"
         android:textSize="11sp"
+        android:maxLines="2"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/price" />

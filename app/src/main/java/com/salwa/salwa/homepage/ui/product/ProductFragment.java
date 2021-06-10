@@ -3,7 +3,6 @@ package com.salwa.salwa.homepage.ui.product;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ public class ProductFragment extends Fragment {
 
     private FragmentProductBinding binding;
     private String uid;
+    private boolean isVisible = true;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -56,7 +56,24 @@ public class ProductFragment extends Fragment {
             binding.progressBar.setVisibility(View.GONE);
         });
 
+        // show hide
+        showHideNameAndGreeting();
+
         return binding.getRoot();
+    }
+
+    private void showHideNameAndGreeting() {
+        binding.showHideName.setOnClickListener(view -> {
+            if(isVisible) {
+                binding.nameTv.setVisibility(View.GONE);
+                binding.textView2.setVisibility(View.GONE);
+                isVisible = false;
+            } else {
+                binding.nameTv.setVisibility(View.VISIBLE);
+                binding.textView2.setVisibility(View.VISIBLE);
+                isVisible = true;
+            }
+        });
     }
 
     @Override
