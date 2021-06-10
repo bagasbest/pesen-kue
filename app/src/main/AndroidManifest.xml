@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Salwa">
-        <activity android:name=".homepage.ui.product.DetailProductActivity"></activity>
+        <activity android:name=".homepage.ui.product.ReviewProductActivity"></activity>
+        <activity android:name=".homepage.ui.product.DetailProductActivity" />
         <activity android:name=".homepage.ui.product.AddProductActivity" />
         <activity
             android:name=".homepage.HomeActivity"

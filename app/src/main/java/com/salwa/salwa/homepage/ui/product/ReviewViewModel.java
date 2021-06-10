@@ -17,36 +17,32 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class ProductViewModel extends ViewModel {
+public class ReviewViewModel extends ViewModel {
+    private final MutableLiveData<ArrayList<ReviewModel>> listReview = new MutableLiveData<>();
+    private static final String TAG = ReviewViewModel.class.getSimpleName();
 
-    private final MutableLiveData<ArrayList<ProductModel>> listProduct = new MutableLiveData<>();
-    private static final String TAG = ProductViewModel.class.getSimpleName();
-
-    public void setProductList() {
-        final ArrayList<ProductModel> productArrayList = new ArrayList<>();
+    public void setReviewList() {
+        final ArrayList<ReviewModel> reviewArrayList = new ArrayList<>();
 
         try {
             FirebaseFirestore
                     .getInstance()
-                    .collection("product")
+                    .collection("review")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
-                                    ProductModel productModel = new ProductModel();
-                                    productModel.setTitle("" + document.get("title"));
-                                    productModel.setDescription("" + document.get("description"));
-                                    productModel.setProductId("" + document.get("productId"));
-                                    productModel.setPrice(Integer.parseInt("" + document.get("price")));
-                                    productModel.setImage("" + document.get("productDp"));
-                                    productModel.setLikes(Integer.parseInt("" + document.get("likes")));
+                                    ReviewModel reviewModel = new ReviewModel();
+                                    reviewModel.setName("" + document.get("name"));
+                                    reviewModel.setReviewText("" + document.get("reviewTxt"));
+                                    reviewModel.setId("" + document.get("uid"));
 
 
-                                    productArrayList.add(productModel);
+                                    reviewArrayList.add(reviewModel);
                                 }
-                                listProduct.postValue(productArrayList);
+                                listReview.postValue(reviewArrayList);
                             } else {
                                 Log.d(TAG, "Error getting documents: ", task.getException());
                             }
@@ -58,8 +54,7 @@ public class ProductViewModel extends ViewModel {
     }
 
 
-    public LiveData<ArrayList<ProductModel>> getProductList() {
-        return listProduct;
+    public LiveData<ArrayList<ReviewModel>> getReviewList() {
+        return listReview;
     }
-
 }
