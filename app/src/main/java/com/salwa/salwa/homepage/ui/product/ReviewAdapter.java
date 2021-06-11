@@ -43,20 +43,21 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     public static class ReviewViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvName, tvReviewText;
+        TextView tvName, tvReviewText, addedAt;
 
         public ReviewViewHolder(View itemView) {
             super(itemView);
 
             tvName = itemView.findViewById(R.id.name);
             tvReviewText = itemView.findViewById(R.id.reviewTxt);
+            addedAt = itemView.findViewById(R.id.addedAt);
         }
 
         public void bind(ReviewModel reviewModel) {
 
             tvName.setText(reviewModel.getName());
             tvReviewText.setText(reviewModel.getReviewText());
-
+            addedAt.setText(reviewModel.getTimeStamp());
 
         }
     }

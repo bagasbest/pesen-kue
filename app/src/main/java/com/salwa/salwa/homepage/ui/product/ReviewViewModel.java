@@ -21,12 +21,14 @@ public class ReviewViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<ReviewModel>> listReview = new MutableLiveData<>();
     private static final String TAG = ReviewViewModel.class.getSimpleName();
 
-    public void setReviewList() {
+    public void setReviewList(String productId) {
         final ArrayList<ReviewModel> reviewArrayList = new ArrayList<>();
 
         try {
             FirebaseFirestore
                     .getInstance()
+                    .collection("product")
+                    .document(productId)
                     .collection("review")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -38,6 +40,7 @@ public class ReviewViewModel extends ViewModel {
                                     reviewModel.setName("" + document.get("name"));
                                     reviewModel.setReviewText("" + document.get("reviewTxt"));
                                     reviewModel.setId("" + document.get("uid"));
+                                    reviewModel.setTimeStamp("" + document.get("addedAt"));
 
 
                                     reviewArrayList.add(reviewModel);

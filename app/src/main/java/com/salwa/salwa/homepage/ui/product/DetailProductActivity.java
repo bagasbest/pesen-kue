@@ -98,6 +98,7 @@ public class DetailProductActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(DetailProductActivity.this, ReviewProductActivity.class);
                 intent.putExtra(ReviewProductActivity.EXTRA_PRODUCT_NAME, title);
+                intent.putExtra(ReviewProductActivity.EXTRA_ID, id);
                 startActivity(intent);
             }
         });

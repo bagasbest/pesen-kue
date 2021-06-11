@@ -4,9 +4,18 @@ public class ReviewModel {
     private String name;
     private String id;
     private String reviewText;
+    private String timeStamp;
 
 
     public ReviewModel(){}
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 
     public String getName() {
         return name;
