@@ -9,8 +9,9 @@ public class ProductModel implements Parcelable {
     private String image;
     private String title;
     private String description;
-    private int likes;
+    private double likes;
     private int price;
+    private int personRated;
 
     public ProductModel(){}
 
@@ -19,8 +20,9 @@ public class ProductModel implements Parcelable {
         image = in.readString();
         title = in.readString();
         description = in.readString();
-        likes = in.readInt();
+        likes = in.readDouble();
         price = in.readInt();
+        personRated = in.readInt();
     }
 
     public static final Creator<ProductModel> CREATOR = new Creator<ProductModel>() {
@@ -67,11 +69,11 @@ public class ProductModel implements Parcelable {
         this.description = description;
     }
 
-    public int getLikes() {
+    public double getLikes() {
         return likes;
     }
 
-    public void setLikes(int likes) {
+    public void setLikes(double likes) {
         this.likes = likes;
     }
 
@@ -82,6 +84,15 @@ public class ProductModel implements Parcelable {
     public void setPrice(int price) {
         this.price = price;
     }
+
+    public int getPersonRated() {
+        return personRated;
+    }
+
+    public void setPersonRated(int personRated) {
+        this.personRated = personRated;
+    }
+
 
     @Override
     public int describeContents() {
@@ -94,7 +105,8 @@ public class ProductModel implements Parcelable {
         parcel.writeString(image);
         parcel.writeString(title);
         parcel.writeString(description);
-        parcel.writeInt(likes);
+        parcel.writeDouble(likes);
         parcel.writeInt(price);
+        parcel.writeInt(personRated);
     }
 }

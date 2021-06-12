@@ -52,7 +52,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:layout_constraintVertical_bias="0.0"
-        tools:listitem="@layout/item_product" />
+        tools:listitem="@layout/item_product"
+        android:layout_marginBottom="57dp"/>
 
     <ProgressBar
         android:id="@+id/progress_bar"

@@ -2,6 +2,7 @@ package com.salwa.salwa.homepage.ui.product;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,20 +70,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             titleTv.setText(productModel.getTitle());
             descriptionTv.setText(productModel.getDescription());
             priceTv.setText("Rp. " + productModel.getPrice());
-            ratingTv.setText(String.format("%.1f", productModel.getLikes() / 5.0) + " | " + productModel.getLikes() +" Kali terjual");
+            ratingTv.setText(String.format("%.1f", productModel.getLikes()) + " | " + productModel.getPersonRated() +" Penilaian");
 
             Glide.with(itemView.getContext())
                     .load(productModel.getImage())
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(productDp);
 
-            card.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(itemView.getContext(), DetailProductActivity.class);
-                    intent.putExtra(DetailProductActivity.ITEM_PRODUCT, productModel);
-                    itemView.getContext().startActivity(intent);
-                }
+
+            card.setOnClickListener(view -> {
+                Intent intent = new Intent(itemView.getContext(), DetailProductActivity.class);
+                intent.putExtra(DetailProductActivity.ITEM_PRODUCT, productModel);
+                itemView.getContext().startActivity(intent);
             });
 
 

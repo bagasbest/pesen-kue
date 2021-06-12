@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,13 +22,15 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
-import com.salwa.salwa.databinding.ActivityAddProductBinding;
 import com.salwa.salwa.databinding.ActivityDetailProductBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +44,6 @@ public class DetailProductActivity extends AppCompatActivity {
     private String description;
     private int price;
     private String dp;
-    private int likes = 0;
 
 
     @SuppressLint({"SetTextI18n", "DefaultLocale"})
@@ -63,13 +65,13 @@ public class DetailProductActivity extends AppCompatActivity {
         description = pm.getDescription();
         price = pm.getPrice();
         dp = pm.getImage();
-        likes = pm.getLikes();
-
+        double likes = pm.getLikes();
+        int personRated = pm.getPersonRated();
 
         binding.title.setText(title);
         binding.description.setText(description);
         binding.price.setText("Rp. " + price);
-        binding.rating.setText(String.format("%.1f", likes / 5.0) + " | " + likes + " Kali terjual");
+        binding.rating.setText(String.format("%.1f", likes) + " | " + personRated + " Penilaian");
 
         binding.imageView6.setVisibility(View.GONE);
 
@@ -93,14 +95,11 @@ public class DetailProductActivity extends AppCompatActivity {
     }
 
     private void showReviewProduct() {
-        binding.comment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(DetailProductActivity.this, ReviewProductActivity.class);
-                intent.putExtra(ReviewProductActivity.EXTRA_PRODUCT_NAME, title);
-                intent.putExtra(ReviewProductActivity.EXTRA_ID, id);
-                startActivity(intent);
-            }
+        binding.comment.setOnClickListener(view -> {
+            Intent intent = new Intent(DetailProductActivity.this, ReviewProductActivity.class);
+            intent.putExtra(ReviewProductActivity.EXTRA_PRODUCT_NAME, title);
+            intent.putExtra(ReviewProductActivity.EXTRA_ID, id);
+            startActivity(intent);
         });
     }
 
@@ -141,25 +140,47 @@ public class DetailProductActivity extends AppCompatActivity {
         pb = dialog.findViewById(R.id.progress_bar);
 
 
-        btnDismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
+        btnDismiss.setOnClickListener(view -> dialog.dismiss());
+
+        btnAddToCart.setOnClickListener(view -> {
+            // jika pengguna menginputkan produk kosong atau 0
+            if (etTotalProduct.getText().toString().trim().isEmpty() || Integer.parseInt(etTotalProduct.getText().toString().trim()) == 0) {
+                Toast.makeText(DetailProductActivity.this, "Minimal 1 produk", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            // jika pengguna menginputkan produk >= 1
+            pb.setVisibility(View.VISIBLE);
+            int totalProduct = Integer.parseInt(etTotalProduct.getText().toString().trim());
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            // total harga produk yang diambil
+            int totalPrice = price * totalProduct;
+
+            // ambil nama pembeli
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            // sembunyikan progress bar untuk selesai loading
+                            saveCartProductToDatabase(id, title, description, totalPrice, dp, uid, pb, totalProduct, documentSnapshot.get("name").toString());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull @NotNull Exception e) {
+                            // sembunyikan progress bar untuk selesai loading
+                            pb.setVisibility(View.GONE);
+                            Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
-
-        btnAddToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String totalProduct = etTotalProduct.getText().toString().trim();
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-
-                // simpan produk yang ada di keranjang ke database
-                pb.setVisibility(View.VISIBLE);
-                saveCartProductToDatabase(id, title, description, price, dp, uid, pb);
-            }
-        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
 
@@ -185,8 +206,8 @@ public class DetailProductActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Toast.makeText(DetailProductActivity.this, String.valueOf(ratingBar.getRating()), Toast.LENGTH_SHORT).show();
-
-                saveRatingInDatabase(ratingBar.getRating(), pb);
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                saveRatingInDatabase(ratingBar.getRating(), pb, uid, dialog);
             }
         });
 
@@ -202,15 +223,32 @@ public class DetailProductActivity extends AppCompatActivity {
     }
 
 
-    private void saveCartProductToDatabase(String id, String title, String description, int price, String dp, String uid, ProgressBar pb) {
+    private void saveCartProductToDatabase(
+            String id,
+            String title,
+            String description,
+            int totalPrice,
+            String dp,
+            String uid,
+            ProgressBar pb,
+            int totalProduct,
+            String name) {
+
+        // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat getDate = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss");
+        String format = getDate.format(new Date());
 
         Map<String, Object> users = new HashMap<>();
         users.put("productId", id);
-        users.put("bookedBy", uid);
+        users.put("bookedBy", name);
+        users.put("userUid", uid);
         users.put("title", title);
         users.put("description", description);
-        users.put("price", price);
+        users.put("price", totalPrice);
+        users.put("totalProduct", totalProduct);
         users.put("productDp", dp);
+        users.put("addedAt", format);
 
 
         FirebaseFirestore
@@ -223,7 +261,7 @@ public class DetailProductActivity extends AppCompatActivity {
                     public void onSuccess(Void unused) {
                         // sembunyikan progress bar untuk selesai loading
                         pb.setVisibility(View.GONE);
-                        Toast.makeText(DetailProductActivity.this, "Berhasil menambahkan produk baru", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailProductActivity.this, "Berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -234,11 +272,41 @@ public class DetailProductActivity extends AppCompatActivity {
                         Toast.makeText(DetailProductActivity.this, "Ups, tidak berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
                     }
                 });
+
     }
 
-    private void saveRatingInDatabase(float rating, ProgressBar pb) {
-        // simpan rating pengguna ke database
+    private void saveRatingInDatabase(float rating, ProgressBar pb, String uid, Dialog dialog) {
 
+        Map<String, Object> rate = new HashMap<>();
+        rate.put("uid", uid);
+        rate.put("rating", rating);
+
+
+        // simpan rating pengguna ke database
+        pb.setVisibility(View.VISIBLE);
+        FirebaseFirestore
+                .getInstance()
+                .collection("product")
+                .document(id)
+                .collection("rating")
+                .document(uid)
+                .set(rate)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        pb.setVisibility(View.GONE);
+                        dialog.dismiss();
+                        Toast.makeText(DetailProductActivity.this, "Berhasil memberi penilaian", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @NotNull Exception e) {
+                        pb.setVisibility(View.GONE);
+                        dialog.dismiss();
+                        Toast.makeText(DetailProductActivity.this, "Gagal memberi penilaian", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
