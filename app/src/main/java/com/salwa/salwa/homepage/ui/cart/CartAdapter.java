@@ -1,6 +1,7 @@
 package com.salwa.salwa.homepage.ui.cart;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.salwa.salwa.R;
-import com.salwa.salwa.databinding.ItemCartBinding;
-import com.salwa.salwa.homepage.ui.product.ReviewModel;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -51,6 +50,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         TextView tvTitle, tvName, tvTime, tvTotalProduct, tvTotalPrice;
         ImageView imgProduct;
+        View view;
 
         public CartViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
@@ -61,6 +61,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvTotalProduct = itemView.findViewById(R.id.totalProduct);
             tvTotalPrice = itemView.findViewById(R.id.price);
             imgProduct = itemView.findViewById(R.id.productDp);
+            view = itemView.findViewById(R.id.view2);
         }
 
         @SuppressLint("SetTextI18n")
@@ -76,6 +77,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     .placeholder(R.drawable.ic_baseline_broken_image_24)
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(imgProduct);
+
+            view.setOnClickListener(view -> {
+                Intent intent = new Intent(itemView.getContext(), DetailCartActivity.class);
+                intent.putExtra(DetailCartActivity.ITEM_CART, cartModel);
+                itemView.getContext().startActivity(intent);
+            });
+
         }
     }
 }
