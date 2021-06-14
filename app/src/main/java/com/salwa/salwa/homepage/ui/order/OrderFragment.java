@@ -12,17 +12,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.databinding.FragmentOrderBinding;
 
 public class OrderFragment extends Fragment {
 
     private OrderViewModel orderViewModel;
     private FragmentOrderBinding binding;
+    private String role;
 
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActivity().setTitle("Pemesanan dan Pembayaran");
+
+
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -30,20 +35,42 @@ public class OrderFragment extends Fragment {
         orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
         binding = FragmentOrderBinding.inflate(inflater, container, false);
 
-        // inisiasi viewModel untuk menampilkan barang yang ada di Halaman Order/Payment
-        initViewModel();
+        // cek apakah user yang login ini admin atau user biasa
+        checkIsAdminOrNot();
 
         binding.srlData.setOnRefreshListener(() -> {
             binding.srlData.setRefreshing(true);
             // inisiasi viewModel untuk menampilkan barang yang ada di Halaman Order/Payment
-            initViewModel();
+            checkIsAdminOrNot();
             binding.srlData.setRefreshing(false);
         });
 
         return binding.getRoot();
     }
 
-    private void initViewModel() {
+    private void checkIsAdminOrNot() {
+        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
+        binding.progressBar.setVisibility(View.VISIBLE);
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        String role = (String) document.get("role");
+
+                        // inisiasi viewModel untuk menampilkan barang yang ada di Halaman Order/Payment
+                        initViewModel(role);
+
+                    }
+                });
+    }
+
+    private void initViewModel(String role) {
         // tampilkan daftar belanjaan di Halaman Order/Payment
 
         String customerUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -53,8 +80,11 @@ public class OrderFragment extends Fragment {
         orderAdapter.notifyDataSetChanged();
         binding.rvOrder.setAdapter(orderAdapter);
 
-        binding.progressBar.setVisibility(View.VISIBLE);
-        orderViewModel.setOrderList(customerUid);
+        if (role.equals("admin")) {
+            orderViewModel.setOrderListByAdminSide();
+        } else {
+            orderViewModel.setOrderList(customerUid);
+        }
         orderViewModel.getOrderList().observe(getViewLifecycleOwner(), orderList -> {
             if (orderList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);

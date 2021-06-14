@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -51,6 +53,7 @@ public class DetailOrderActivity extends AppCompatActivity {
     private String status;
     private String proofPayment;
     private String orderId;
+    private boolean isAdmin = false;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -68,6 +71,9 @@ public class DetailOrderActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(title);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // cek apakah user yang sedang login ini admin atau user biasa
+        checkIsAdminOrNot();
 
         addedAt = om.getAddedAt();
         bookedBy = om.getBookedBy();
@@ -113,6 +119,24 @@ public class DetailOrderActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void checkIsAdminOrNot() {
+        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.get("role") == "admin") {
+                            isAdmin = true;
+                        }
+                    }
+                });
     }
 
     private void uploadProofPayment() {
@@ -207,6 +231,12 @@ public class DetailOrderActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_proof_payment, menu);
+
+        // jika bukan admin maka sembunyikan ikon ceklis untuk memverifikasi pembayaran
+        MenuItem item = menu.findItem(R.id.menu_accept);
+        if(!isAdmin) {
+            item.setVisible(false);
+        }
         return true;
     }
 
