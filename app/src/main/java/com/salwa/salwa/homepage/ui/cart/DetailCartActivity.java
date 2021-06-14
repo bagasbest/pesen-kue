@@ -119,6 +119,9 @@ public class DetailCartActivity extends AppCompatActivity {
     }
 
     private void orderProduct() {
+        // set time in millis
+        String timeInMillis = String.valueOf(System.currentTimeMillis());
+
         // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat getDate = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss");
@@ -138,11 +141,12 @@ public class DetailCartActivity extends AppCompatActivity {
         order.put("addedAt", format);
         order.put("paymentStatus", "Belum Bayar");
         order.put("proofPayment", "Belum Bayar");
+        order.put("orderId", timeInMillis);
 
         FirebaseFirestore
                 .getInstance()
                 .collection("order")
-                .document(String.valueOf(System.currentTimeMillis()))
+                .document(timeInMillis)
                 .set(order)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {

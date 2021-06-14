@@ -73,7 +73,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             timeOrdered.setText("Waktu: " + orderModel.getAddedAt());
             totalProduct.setText("Total pembelian: " + orderModel.getTotalProduct());
             price.setText("Total harga: Rp." + orderModel.getPrice());
-            paymentStatus.setText("Status: " + orderModel.getProofPayment());
 
             Glide.with(itemView.getContext())
                     .load(orderModel.getProductDp())
@@ -81,8 +80,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(productDp);
 
-            if(orderModel.getStatus().equals("Sudah Membayar")) {
+            if(orderModel.getStatus().equals("Sudah Bayar")) {
                 view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
+                paymentStatus.setText("Status: " + orderModel.getStatus());
+            } else if (orderModel.getStatus().equals("Dalam Proses")) {
+                view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
+                paymentStatus.setText("Status: " + orderModel.getStatus());
+
             }
 
             view2.setOnClickListener(view -> {

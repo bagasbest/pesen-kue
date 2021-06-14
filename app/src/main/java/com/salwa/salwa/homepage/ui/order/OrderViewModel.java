@@ -15,6 +15,7 @@ public class OrderViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<OrderModel>> orderList = new MutableLiveData<>();
     private static final String TAG = OrderViewModel.class.getSimpleName();
 
+    // sisi kustomer yang ditamplikan hanya daftar orderan / pemesanan dirinya sendiri
     public void setOrderList(String customerUid) {
         final ArrayList<OrderModel> orderArrayList = new ArrayList<>();
 
@@ -41,6 +42,7 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setUserUid("" + document.get("userUid"));
                                 orderModel.setStatus("" + document.get("paymentStatus"));
                                 orderModel.setProofPayment("" + document.get("proofPayment"));
+                                orderModel.setOrderId("" + document.get("orderId"));
 
                                 orderArrayList.add(orderModel);
                             }

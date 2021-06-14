@@ -102,7 +102,6 @@ public class RegisterActivity extends AppCompatActivity {
         users.put("email", email);
         users.put("uid", uid);
         users.put("role", "user");
-        users.put("userDp", "");
 
         FirebaseFirestore.getInstance().collection("users")
                 .document(uid)

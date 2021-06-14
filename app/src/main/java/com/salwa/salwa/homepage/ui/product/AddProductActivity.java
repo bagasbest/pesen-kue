@@ -174,11 +174,13 @@ public class AddProductActivity extends AppCompatActivity {
                                     binding.addHint.setVisibility(View.GONE);
                                 })
                                 .addOnFailureListener(e -> {
+                                    mProgressDialog.dismiss();
                                     Toast.makeText(AddProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
                                     Log.d("productDp", e.toString());
                                     binding.addHint.setVisibility(View.VISIBLE);
                                 }))
                 .addOnFailureListener(e -> {
+                    mProgressDialog.dismiss();
                     Toast.makeText(AddProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
                     Log.d("productDp", e.toString());
                     binding.addHint.setVisibility(View.VISIBLE);

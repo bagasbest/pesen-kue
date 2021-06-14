@@ -19,6 +19,7 @@ public class OrderModel implements Parcelable {
     private String userUid;
     private String status;
     private String proofPayment;
+    private String orderId;
 
     public OrderModel() {}
 
@@ -126,6 +127,14 @@ public class OrderModel implements Parcelable {
         this.proofPayment = proofPayment;
     }
 
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
     protected OrderModel(Parcel in) {
         addedAt = in.readString();
         bookedBy = in.readString();
@@ -140,6 +149,7 @@ public class OrderModel implements Parcelable {
         userUid = in.readString();
         status = in.readString();
         proofPayment = in.readString();
+        orderId = in.readString();
     }
 
     public static final Creator<OrderModel> CREATOR = new Creator<OrderModel>() {
@@ -174,5 +184,6 @@ public class OrderModel implements Parcelable {
         parcel.writeString(userUid);
         parcel.writeString(status);
         parcel.writeString(proofPayment);
+        parcel.writeString(orderId);
     }
 }
