@@ -4,19 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.salwa.salwa.databinding.FragmentCartBinding;
-import com.salwa.salwa.homepage.ui.product.ProductAdapter;
 
 
 public class CartFragment extends Fragment {
@@ -29,9 +24,27 @@ public class CartFragment extends Fragment {
         cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         binding = FragmentCartBinding.inflate(inflater, container, false);
 
+        // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
+        initViewModel();
+
+        binding.srlData.setOnRefreshListener(() -> {
+            binding.srlData.setRefreshing(true);
+            // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
+            initViewModel();
+            binding.srlData.setRefreshing(false);
+        });
+
+        return binding.getRoot();
+    }
+
+
+
+    // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
+    private void initViewModel() {
+        // tampilkan daftar belanjaan di keranjang kustomer
+
         String customerUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // tampilkan daftar belanjaan di keranjang kustomer
         binding.rvCart.setLayoutManager(new LinearLayoutManager(getActivity()));
         CartAdapter cartAdapter = new CartAdapter();
         cartAdapter.notifyDataSetChanged();
@@ -50,9 +63,6 @@ public class CartFragment extends Fragment {
             }
             binding.progressBar.setVisibility(View.GONE);
         });
-
-
-        return binding.getRoot();
     }
 
     @Override

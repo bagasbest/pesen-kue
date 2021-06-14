@@ -28,13 +28,32 @@ public class ProductFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        ProductViewModel productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
         binding = FragmentProductBinding.inflate(inflater, container, false);
-
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         // cek apakah user yang sedang login ini admin atau user biasa
         checkIsAdminOrNot();
+
+        // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
+        initViewModel();
+
+        // refresh layout
+        binding.srlData.setOnRefreshListener(() -> {
+            binding.srlData.setRefreshing(true);
+            // inisiasi view model untuk menampilkan list produk
+            initViewModel();
+            binding.srlData.setRefreshing(false);
+        });
+
+        // show hide selamat datang
+        showHideNameAndGreeting();
+
+        return binding.getRoot();
+    }
+
+    // inisiasi view model untuk menampilkan list produk
+    private void initViewModel() {
+        ProductViewModel productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
 
         // tampilkan daftar cookies
         binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
@@ -55,11 +74,6 @@ public class ProductFragment extends Fragment {
             }
             binding.progressBar.setVisibility(View.GONE);
         });
-
-        // show hide
-        showHideNameAndGreeting();
-
-        return binding.getRoot();
     }
 
     private void showHideNameAndGreeting() {
