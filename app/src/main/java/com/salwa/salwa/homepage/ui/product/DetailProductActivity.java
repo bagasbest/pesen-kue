@@ -1,6 +1,5 @@
 package com.salwa.salwa.homepage.ui.product;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,16 +17,11 @@ import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailProductBinding;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -103,22 +97,12 @@ public class DetailProductActivity extends AppCompatActivity {
     }
 
     private void addProductToCart() {
-        binding.addToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTotalProductAdded();
-            }
-        });
+        binding.addToCart.setOnClickListener(view -> showTotalProductAdded());
     }
 
 
     private void giveRatingAboutProduct() {
-        binding.ratingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showRatingPopUp();
-            }
-        });
+        binding.ratingBtn.setOnClickListener(view -> showRatingPopUp());
     }
 
 
@@ -162,20 +146,14 @@ public class DetailProductActivity extends AppCompatActivity {
                     .collection("users")
                     .document(uid)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            // sembunyikan progress bar untuk selesai loading
-                            saveCartProductToDatabase(id, title, description, totalPrice, dp, uid, pb, totalProduct, documentSnapshot.get("name").toString());
-                        }
+                    .addOnSuccessListener(documentSnapshot -> {
+                        // sembunyikan progress bar untuk selesai loading
+                        saveCartProductToDatabase(id, title, description, totalPrice, dp, uid, pb, totalProduct, documentSnapshot.get("name").toString(), dialog);
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull @NotNull Exception e) {
-                            // sembunyikan progress bar untuk selesai loading
-                            pb.setVisibility(View.GONE);
-                            Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
-                        }
+                    .addOnFailureListener(e -> {
+                        // sembunyikan progress bar untuk selesai loading
+                        pb.setVisibility(View.GONE);
+                        Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
                     });
         });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -201,21 +179,12 @@ public class DetailProductActivity extends AppCompatActivity {
         pb = dialog.findViewById(R.id.progress_bar);
 
 
-        btnSubmitRating.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Toast.makeText(DetailProductActivity.this, String.valueOf(ratingBar.getRating()), Toast.LENGTH_SHORT).show();
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                saveRatingInDatabase(ratingBar.getRating(), pb, uid, dialog);
-            }
+        btnSubmitRating.setOnClickListener(view -> {
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            saveRatingInDatabase(ratingBar.getRating(), pb, uid, dialog);
         });
 
-        btnDismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        btnDismiss.setOnClickListener(view -> dialog.dismiss());
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
 
@@ -231,7 +200,11 @@ public class DetailProductActivity extends AppCompatActivity {
             String uid,
             ProgressBar pb,
             int totalProduct,
-            String name) {
+            String name,
+            Dialog dialog) {
+
+        // timeInMillis
+        String timeInMillis = String.valueOf(System.currentTimeMillis());
 
         // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
         @SuppressLint("SimpleDateFormat")
@@ -248,28 +221,25 @@ public class DetailProductActivity extends AppCompatActivity {
         users.put("totalProduct", totalProduct);
         users.put("productDp", dp);
         users.put("addedAt", format);
+        users.put("cartId", timeInMillis);
 
 
         FirebaseFirestore
                 .getInstance()
                 .collection("cart")
-                .document(String.valueOf(System.currentTimeMillis()))
+                .document(timeInMillis)
                 .set(users)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        // sembunyikan progress bar untuk selesai loading
-                        pb.setVisibility(View.GONE);
-                        Toast.makeText(DetailProductActivity.this, "Berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnSuccessListener(unused -> {
+                    // sembunyikan progress bar untuk selesai loading
+                    pb.setVisibility(View.GONE);
+                    Toast.makeText(DetailProductActivity.this, "Berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        // sembunyikan progress bar untuk selesai loading
-                        pb.setVisibility(View.GONE);
-                        Toast.makeText(DetailProductActivity.this, "Ups, tidak berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    // sembunyikan progress bar untuk selesai loading
+                    pb.setVisibility(View.GONE);
+                    Toast.makeText(DetailProductActivity.this, "Ups, tidak berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 });
 
     }
@@ -290,21 +260,15 @@ public class DetailProductActivity extends AppCompatActivity {
                 .collection("rating")
                 .document(uid)
                 .set(rate)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        pb.setVisibility(View.GONE);
-                        dialog.dismiss();
-                        Toast.makeText(DetailProductActivity.this, "Berhasil memberi penilaian", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnSuccessListener(unused -> {
+                    pb.setVisibility(View.GONE);
+                    dialog.dismiss();
+                    Toast.makeText(DetailProductActivity.this, "Berhasil memberi penilaian", Toast.LENGTH_SHORT).show();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @NotNull Exception e) {
-                        pb.setVisibility(View.GONE);
-                        dialog.dismiss();
-                        Toast.makeText(DetailProductActivity.this, "Gagal memberi penilaian", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    pb.setVisibility(View.GONE);
+                    dialog.dismiss();
+                    Toast.makeText(DetailProductActivity.this, "Gagal memberi penilaian", Toast.LENGTH_SHORT).show();
                 });
     }
 

@@ -3,6 +3,7 @@ package com.salwa.salwa.homepage.ui.product;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,24 +27,26 @@ public class ProductFragment extends Fragment {
     private String uid;
     private boolean isVisible = true;
 
+    private ProductAdapter productAdapter;
+
+    @Override
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActivity().setTitle("Produk Tersedia");
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProductBinding.inflate(inflater, container, false);
-        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        initRecyclerView();
+        initViewModel();
 
         // cek apakah user yang sedang login ini admin atau user biasa
         checkIsAdminOrNot();
 
-        // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
-        initViewModel();
 
-        // refresh layout
-        binding.srlData.setOnRefreshListener(() -> {
-            binding.srlData.setRefreshing(true);
-            // inisiasi view model untuk menampilkan list produk
-            initViewModel();
-            binding.srlData.setRefreshing(false);
-        });
+
 
         // show hide selamat datang
         showHideNameAndGreeting();
@@ -51,26 +54,25 @@ public class ProductFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private void initRecyclerView() {
+        // tampilkan daftar cookies
+        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        productAdapter = new ProductAdapter();
+        binding.recyclerView.setAdapter(productAdapter);
+    }
+
     // inisiasi view model untuk menampilkan list produk
     private void initViewModel() {
         ProductViewModel productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
-
-        // tampilkan daftar cookies
-        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        ProductAdapter productAdapter = new ProductAdapter();
-        productAdapter.notifyDataSetChanged();
-        binding.recyclerView.setAdapter(productAdapter);
-
         binding.progressBar.setVisibility(View.VISIBLE);
         productViewModel.setProductList();
         productViewModel.getProductList().observe(getViewLifecycleOwner(), productList -> {
+            Log.e("TAG", String.valueOf(productList.size()));
             if (productList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);
-                binding.recyclerView.setVisibility(View.VISIBLE);
                 productAdapter.setData(productList);
             } else {
                 binding.noData.setVisibility(View.VISIBLE);
-                binding.recyclerView.setVisibility(View.GONE);
             }
             binding.progressBar.setVisibility(View.GONE);
         });
@@ -102,6 +104,7 @@ public class ProductFragment extends Fragment {
     @SuppressLint("SetTextI18n")
     private void checkIsAdminOrNot() {
         // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore
                 .getInstance()
                 .collection("users")

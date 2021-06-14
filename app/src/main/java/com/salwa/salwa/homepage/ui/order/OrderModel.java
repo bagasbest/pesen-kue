@@ -1,21 +1,26 @@
-package com.salwa.salwa.homepage.ui.cart;
+package com.salwa.salwa.homepage.ui.order;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class CartModel implements Parcelable {
+
+public class OrderModel implements Parcelable {
+
     private String addedAt;
     private String bookedBy;
     private String description;
     private int price;
     private String productDp;
     private String productId;
+    private String address;
+    private String phone;
     private String title;
     private int totalProduct;
     private String userUid;
-    private String cartId;
+    private String status;
+    private String proofPayment;
 
-    public CartModel(){}
+    public OrderModel() {}
 
     public String getAddedAt() {
         return addedAt;
@@ -65,6 +70,22 @@ public class CartModel implements Parcelable {
         this.productId = productId;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -89,36 +110,47 @@ public class CartModel implements Parcelable {
         this.userUid = userUid;
     }
 
-    public String getCartId() {
-        return cartId;
+    public String getStatus() {
+        return status;
     }
 
-    public void setCartId(String cartId) {
-        this.cartId = cartId;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    protected CartModel(Parcel in) {
+    public String getProofPayment() {
+        return proofPayment;
+    }
+
+    public void setProofPayment(String proofPayment) {
+        this.proofPayment = proofPayment;
+    }
+
+    protected OrderModel(Parcel in) {
         addedAt = in.readString();
         bookedBy = in.readString();
         description = in.readString();
         price = in.readInt();
         productDp = in.readString();
         productId = in.readString();
+        address = in.readString();
+        phone = in.readString();
         title = in.readString();
         totalProduct = in.readInt();
         userUid = in.readString();
-        cartId = in.readString();
+        status = in.readString();
+        proofPayment = in.readString();
     }
 
-    public static final Creator<CartModel> CREATOR = new Creator<CartModel>() {
+    public static final Creator<OrderModel> CREATOR = new Creator<OrderModel>() {
         @Override
-        public CartModel createFromParcel(Parcel in) {
-            return new CartModel(in);
+        public OrderModel createFromParcel(Parcel in) {
+            return new OrderModel(in);
         }
 
         @Override
-        public CartModel[] newArray(int size) {
-            return new CartModel[size];
+        public OrderModel[] newArray(int size) {
+            return new OrderModel[size];
         }
     };
 
@@ -135,9 +167,12 @@ public class CartModel implements Parcelable {
         parcel.writeInt(price);
         parcel.writeString(productDp);
         parcel.writeString(productId);
+        parcel.writeString(address);
+        parcel.writeString(phone);
         parcel.writeString(title);
         parcel.writeInt(totalProduct);
         parcel.writeString(userUid);
-        parcel.writeString(cartId);
+        parcel.writeString(status);
+        parcel.writeString(proofPayment);
     }
 }

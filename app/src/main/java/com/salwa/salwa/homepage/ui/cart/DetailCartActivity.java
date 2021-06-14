@@ -1,22 +1,39 @@
 package com.salwa.salwa.homepage.ui.cart;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailCartBinding;
-import com.salwa.salwa.homepage.ui.product.ProductModel;
+import com.salwa.salwa.homepage.HomeActivity;
+import com.salwa.salwa.homepage.ui.product.ProductFragment;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DetailCartActivity extends AppCompatActivity {
 
     private ActivityDetailCartBinding binding;
 
     public static final String ITEM_CART = "item";
-    private String addedAt;
     private String bookedBy;
     private String description;
     private int price;
@@ -25,6 +42,7 @@ public class DetailCartActivity extends AppCompatActivity {
     private String title;
     private int totalProduct;
     private String customerUid;
+    private String cartId;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -42,7 +60,6 @@ public class DetailCartActivity extends AppCompatActivity {
         actionBar.setTitle(title);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        addedAt = cm.getAddedAt();
         bookedBy = cm.getBookedBy();
         description = cm.getDescription();
         price = cm.getPrice();
@@ -50,6 +67,7 @@ public class DetailCartActivity extends AppCompatActivity {
         productId = cm.getProductId();
         totalProduct = cm.getTotalProduct();
         customerUid = cm.getUserUid();
+        cartId = cm.getCartId();
 
 
         binding.name.setText("Nama : " + bookedBy);
@@ -65,6 +83,104 @@ public class DetailCartActivity extends AppCompatActivity {
                 .into(binding.productDp);
 
 
+        // klik tombol pemesanan
+        binding.btnOrder.setOnClickListener(view -> {
+            // validasi pemesanan produk
+            validateFormToOrder();
+        });
+
+    }
+
+    @SuppressLint("ResourceType")
+    private void validateFormToOrder() {
+        // validasi form alamat, no telepon
+        if(binding.addressEt.getText().toString().trim().isEmpty()) {
+            binding.addressEt.setError("Alamat harus dicantumkan sedetail mungkin");
+            return;
+        }
+        else if(binding.phoneEt.getText().toString().trim().isEmpty()) {
+            binding.phoneEt.setError("No. Telepon harus dicantumkan");
+            return;
+        }
+
+        // lakukan pemesanan dan pembayaran
+        new AlertDialog.Builder(this)
+                .setTitle("Konfirmasi Pemesanan")
+                .setMessage("Apakah anada yakin ingin melakukan pemesanan produk: " + title + " ?")
+                .setPositiveButton("YA", (dialogInterface, i) -> {
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    // order produk
+                    orderProduct();
+                })
+                .setNegativeButton("TIDAK", null)
+                .setIcon(R.drawable.ic_baseline_payment_24)
+                .setIconAttribute(R.color.secondary)
+                .show();
+    }
+
+    private void orderProduct() {
+        // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat getDate = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss");
+        String format = getDate.format(new Date());
+
+        Map<String, Object> order = new HashMap<>();
+        order.put("productId", productId);
+        order.put("bookedBy", bookedBy);
+        order.put("userUid", customerUid);
+        order.put("address", binding.addressEt.getText().toString().trim());
+        order.put("phone", binding.phoneEt.getText().toString().trim());
+        order.put("title", title);
+        order.put("description", description);
+        order.put("price", price);
+        order.put("totalProduct", totalProduct);
+        order.put("productDp", productDp);
+        order.put("addedAt", format);
+        order.put("paymentStatus", "Belum Bayar");
+        order.put("proofPayment", "Belum Bayar");
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("order")
+                .document(String.valueOf(System.currentTimeMillis()))
+                .set(order)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        // hapus produk ini dari keranjang
+                        deleteProductFromCart();
+                    }else {
+                        // sembunyikan progress bar untuk selesai loading
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+    }
+
+    private void deleteProductFromCart() {
+        FirebaseFirestore
+                .getInstance()
+                .collection("cart")
+                .document(cartId)
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            // sembunyikan progress bar untuk selesai loading
+                            binding.progressBar.setVisibility(View.GONE);
+                            Toast.makeText(DetailCartActivity.this, "Berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+
+                            onBackPressed();
+
+                        } else {
+                            // sembunyikan progress bar untuk selesai loading
+                            binding.progressBar.setVisibility(View.GONE);
+                            Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     @Override
