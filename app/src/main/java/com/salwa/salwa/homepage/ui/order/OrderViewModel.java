@@ -14,13 +14,14 @@ import java.util.ArrayList;
 public class OrderViewModel extends ViewModel {
 
     private final MutableLiveData<ArrayList<OrderModel>> orderList = new MutableLiveData<>();
+    final ArrayList<OrderModel> orderArrayList = new ArrayList<>();
     private static final String TAG = OrderViewModel.class.getSimpleName();
 
     // sisi kustomer yang ditamplikan hanya daftar orderan / pemesanan dirinya sendiri
     public void setOrderList(String customerUid) {
-        final ArrayList<OrderModel> orderArrayList = new ArrayList<>();
 
         try {
+            orderArrayList.clear();
             FirebaseFirestore
                     .getInstance()
                     .collection("order")
@@ -58,8 +59,7 @@ public class OrderViewModel extends ViewModel {
     }
 
     public void setOrderListByAdminSide() {
-        final ArrayList<OrderModel> orderArrayList = new ArrayList<>();
-
+        orderArrayList.clear();
         try {
             FirebaseFirestore
                     .getInstance()

@@ -19,6 +19,7 @@ public class ProductViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<ProductModel>> listProduct = new MutableLiveData<>();
     final ArrayList<ProductModel> productArrayList = new ArrayList<>();
 
+
     private static final String TAG = ProductViewModel.class.getSimpleName();
     private double totalRating = 0.0;
     int total = 0;
@@ -26,6 +27,7 @@ public class ProductViewModel extends ViewModel {
 
 
     public void setProductList() {
+        productArrayList.clear();
 
         try {
             FirebaseFirestore

@@ -1,28 +1,18 @@
 package com.salwa.salwa.homepage.ui.cart;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailCartBinding;
-import com.salwa.salwa.homepage.HomeActivity;
-import com.salwa.salwa.homepage.ui.product.ProductFragment;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -168,21 +158,16 @@ public class DetailCartActivity extends AppCompatActivity {
                 .collection("cart")
                 .document(cartId)
                 .delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        if(task.isSuccessful()) {
-                            // sembunyikan progress bar untuk selesai loading
-                            binding.progressBar.setVisibility(View.GONE);
-                            Toast.makeText(DetailCartActivity.this, "Berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        // sembunyikan progress bar untuk selesai loading
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailCartActivity.this, "Berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
 
-                            onBackPressed();
-
-                        } else {
-                            // sembunyikan progress bar untuk selesai loading
-                            binding.progressBar.setVisibility(View.GONE);
-                            Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
-                        }
+                    } else {
+                        // sembunyikan progress bar untuk selesai loading
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

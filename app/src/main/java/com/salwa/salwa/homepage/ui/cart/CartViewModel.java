@@ -15,11 +15,11 @@ import java.util.ArrayList;
 public class CartViewModel extends ViewModel {
 
     private final MutableLiveData<ArrayList<CartModel>> cartList = new MutableLiveData<>();
+    final ArrayList<CartModel> cartArrayList = new ArrayList<>();
     private static final String TAG = CartViewModel.class.getSimpleName();
 
     public void setCartList(String customerUid) {
-        final ArrayList<CartModel> cartArrayList = new ArrayList<>();
-
+        cartArrayList.clear();
         try {
             FirebaseFirestore
                     .getInstance()

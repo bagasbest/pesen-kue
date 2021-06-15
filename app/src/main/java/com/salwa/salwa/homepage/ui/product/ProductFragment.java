@@ -77,18 +77,16 @@ public class ProductFragment extends Fragment {
     private void initViewModel() {
         ProductViewModel productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
         binding.progressBar.setVisibility(View.VISIBLE);
-        productViewModel.setProductList();
-        productViewModel.getProductList().observe(getViewLifecycleOwner(), productList -> {
-            Log.e("TAG", String.valueOf(productList.size()));
+        productViewModel.getProductList().observe(this, productList -> {
             binding.progressBar.setVisibility(View.GONE);
             if (productList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);
                 productAdapter.setData(productList);
-                productList.clear();
             } else {
                 binding.noData.setVisibility(View.VISIBLE);
             }
         });
+        productViewModel.setProductList();
     }
 
     private void showHideNameAndGreeting() {
