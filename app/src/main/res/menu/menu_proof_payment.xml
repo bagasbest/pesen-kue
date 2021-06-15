@@ -8,4 +8,10 @@
         android:icon="@drawable/ic_baseline_check_circle_24"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/menu_delete"
+        android:title="Hapus Riwayat Pembelian"
+        android:icon="@drawable/ic_baseline_delete_24"
+        app:showAsAction="ifRoom"/>
+
 </menu>

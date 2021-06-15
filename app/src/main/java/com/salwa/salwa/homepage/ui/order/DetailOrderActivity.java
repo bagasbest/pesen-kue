@@ -12,7 +12,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +21,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,6 +30,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailOrderBinding;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +57,7 @@ public class DetailOrderActivity extends AppCompatActivity {
     private String status;
     private String proofPayment;
     private String orderId;
-    private String role = "";
+    private String uid = "";
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -64,6 +67,8 @@ public class DetailOrderActivity extends AppCompatActivity {
         binding = ActivityDetailOrderBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         // dapatkan atribut dari produk yang di klik pengguna
         OrderModel om = getIntent().getParcelableExtra(ITEM_ORDER);
         title = om.getTitle();
@@ -72,9 +77,6 @@ public class DetailOrderActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(title);
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-        // cek apakah user yang sedang login ini admin atau user biasa
-        checkIsAdminOrNot();
 
         addedAt = om.getAddedAt();
         bookedBy = om.getBookedBy();
@@ -105,7 +107,7 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .error(R.drawable.ic_baseline_broken_image_24)
                 .into(binding.productDp);
 
-        if(!proofPayment.equals("Belum Bayar")) {
+        if (!proofPayment.equals("Belum Bayar")) {
             binding.placeHolder.setVisibility(View.GONE);
             Glide.with(this)
                     .load(proofPayment)
@@ -119,23 +121,6 @@ public class DetailOrderActivity extends AppCompatActivity {
         });
 
 
-    }
-
-    private void checkIsAdminOrNot() {
-        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        role = (String) document.get("role");
-                    }
-                    Log.e("TAG", role);
-                });
     }
 
     private void uploadProofPayment() {
@@ -172,7 +157,7 @@ public class DetailOrderActivity extends AppCompatActivity {
         mProgressDialog.setMessage("Mohon tunggu hingga proses selesai...");
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.show();
-        String imageFileName = "ProofPayment/"+ title +"image_" + System.currentTimeMillis() + ".png";
+        String imageFileName = "ProofPayment/" + title + "image_" + System.currentTimeMillis() + ".png";
 
 
         mStorageRef.child(imageFileName).putFile(data)
@@ -233,28 +218,77 @@ public class DetailOrderActivity extends AppCompatActivity {
 
         // jika bukan admin maka sembunyikan ikon ceklis untuk memverifikasi pembayaran
         MenuItem item = menu.findItem(R.id.menu_accept).setVisible(false);
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(role.equals("admin")) {
-                    item.setVisible(true);
-                }
-            }
-        }, 2000);
+        // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
+        MenuItem item2 = menu.findItem(R.id.menu_delete).setVisible(false);
 
 
+        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (("" + document.get("role")).equals("admin")) {
+                            item.setVisible(true);
+                        }
+                    }
+                });
 
+        // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
+        FirebaseFirestore
+                .getInstance()
+                .collection("order")
+                .document(orderId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if(("" + documentSnapshot.get("paymentStatus")).equals("Sudah Bayar")) {
+                        item2.setVisible(true);
+                    }
+                });
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_accept) {
+            // tampilkan konfirmasi untuk menerima bukti pembayaran (khusus admin yang dapat melakukan)
             showConfirmDialog();
         }
+        else if (item.getItemId() == R.id.menu_delete) {
+            // hapus riwayat pembelian produk
+            deleteHistoryPayment();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteHistoryPayment() {
+        new AlertDialog.Builder(this)
+                .setTitle("Konfirmasi Hapus Riwayat Pembayaran")
+                .setMessage("Apakah anada yakin ingin menghapus riwayat pembayaran produk ini ?")
+                .setPositiveButton("YA", (dialogInterface, i) -> {
+                    // Hapus riwayat pembayaran produk ini
+                    FirebaseFirestore
+                            .getInstance()
+                            .collection("order")
+                            .document(orderId)
+                            .delete()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        Toast.makeText(DetailOrderActivity.this, "Berhasil menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(DetailOrderActivity.this, "Gagal menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                })
+                .setNegativeButton("TIDAK", null)
+                .setIcon(R.drawable.ic_baseline_delete_24)
+                .show();
     }
 
     @SuppressLint("ResourceType")
