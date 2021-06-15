@@ -1,6 +1,8 @@
 package com.salwa.salwa.homepage.ui.product;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -9,6 +11,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailProductBinding;
+import com.salwa.salwa.homepage.HomeActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -270,6 +277,71 @@ public class DetailProductActivity extends AppCompatActivity {
                     dialog.dismiss();
                     Toast.makeText(DetailProductActivity.this, "Gagal memberi penilaian", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_edit_delete, menu);
+        // jika bukan admin maka sembunyikan ikon ceklis untuk memverifikasi pembayaran
+        MenuItem item = menu.findItem(R.id.edit).setVisible(false);
+        MenuItem item2 = menu.findItem(R.id.delete).setVisible(false);
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (("" + documentSnapshot.get("role")).equals("admin")) {
+                        item.setVisible(true);
+                        item2.setVisible(true);
+                    }
+                });
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // update produk
+        if (item.getItemId() == R.id.edit) {
+            Intent intent = new Intent(this, UpdateProductActivity.class);
+            intent.putExtra(UpdateProductActivity.PRODUCT_ID, id);
+            intent.putExtra(UpdateProductActivity.TITLE, title);
+            intent.putExtra(UpdateProductActivity.DESCRIPTION, description);
+            intent.putExtra(UpdateProductActivity.PRICE, price);
+            intent.putExtra(UpdateProductActivity.PRODUCT_DP, dp);
+            startActivity(intent);
+        }
+        // Hapus produk
+        else if (item.getItemId() == R.id.delete) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Konfirmasi Hapus Produk")
+                    .setMessage("Apakah anada yakin ingin menghapus produk " + title + " ?")
+                    .setPositiveButton("YA", (dialogInterface, i) -> {
+                        FirebaseFirestore
+                                .getInstance()
+                                .collection("product")
+                                .document(id)
+                                .delete()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        Intent intent = new Intent(this, HomeActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(DetailProductActivity.this, "Gagal menghapus produk", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    })
+                    .setNegativeButton("TIDAK", null)
+                    .setIcon(R.drawable.ic_baseline_delete_24)
+                    .show();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
