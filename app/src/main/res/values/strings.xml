@@ -11,4 +11,5 @@
     <string name="total_harga_rp_199999">Total harga: Rp. 199999</string>
     <string name="total_produk_1_produk">Total produk : 1 produk</string>
     <string name="pembayaran">Pembayaran</string>
+    <string name="logout">logout</string>
 </resources>

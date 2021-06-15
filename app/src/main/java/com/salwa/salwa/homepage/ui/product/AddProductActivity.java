@@ -87,6 +87,7 @@ public class AddProductActivity extends AppCompatActivity {
             return;
         } else if(productDp == null) {
             Toast.makeText(AddProductActivity.this, "Anda harus menambahkan gambar produk", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         // jika tidak ada yang kosong, maka data harus diinpukan ke database

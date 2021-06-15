@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -17,6 +21,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.salwa.salwa.LoginActivity;
+import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.FragmentProductBinding;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,22 +36,28 @@ public class ProductFragment extends Fragment {
     private ProductAdapter productAdapter;
 
     @Override
+    public void onResume() {
+        super.onResume();
+        initRecyclerView();
+        initViewModel();
+    }
+
+    @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActivity().setTitle("Produk Tersedia");
+        setHasOptionsMenu(true);
+
+
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProductBinding.inflate(inflater, container, false);
 
-        initRecyclerView();
-        initViewModel();
 
         // cek apakah user yang sedang login ini admin atau user biasa
         checkIsAdminOrNot();
-
-
 
 
         // show hide selamat datang
@@ -68,13 +80,14 @@ public class ProductFragment extends Fragment {
         productViewModel.setProductList();
         productViewModel.getProductList().observe(getViewLifecycleOwner(), productList -> {
             Log.e("TAG", String.valueOf(productList.size()));
+            binding.progressBar.setVisibility(View.GONE);
             if (productList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);
                 productAdapter.setData(productList);
+                productList.clear();
             } else {
                 binding.noData.setVisibility(View.VISIBLE);
             }
-            binding.progressBar.setVisibility(View.GONE);
         });
     }
 
@@ -114,11 +127,46 @@ public class ProductFragment extends Fragment {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         binding.nameTv.setText("Halo, " + document.get("name"));
-                        if (document.get("role") == "admin") {
+                        if (("" + document.get("role")).equals("admin")) {
                             binding.addProduct.setVisibility(View.VISIBLE);
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull @NotNull Menu menu, @NonNull @NotNull MenuInflater inflater2) {
+        inflater2.inflate(R.menu.menu_logout, menu);
+        super.onCreateOptionsMenu(menu, inflater2);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        if (item.getItemId() == R.id.navigation_logout) {
+            showConfirmDialog();
+        }
+        return true;
+
+    }
+
+    private void showConfirmDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Konfirmasi Logout")
+                .setMessage("Apakah anada yakin ingin keluar aplikasi ?")
+                .setPositiveButton("YA", (dialogInterface, i) -> {
+                    // sign out dari firebase autentikasi
+                    FirebaseAuth.getInstance().signOut();
+
+                    // go to login activity
+                    Intent intent = new Intent(getContext(), LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    dialogInterface.dismiss();
+                    startActivity(intent);
+                    getActivity().finish();
+
+                })
+                .setNegativeButton("TIDAK", null)
+                .show();
     }
 
     @Override

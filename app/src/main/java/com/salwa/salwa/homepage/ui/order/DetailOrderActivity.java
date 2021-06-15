@@ -12,6 +12,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,7 +54,7 @@ public class DetailOrderActivity extends AppCompatActivity {
     private String status;
     private String proofPayment;
     private String orderId;
-    private boolean isAdmin = false;
+    private String role = "";
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -106,7 +107,6 @@ public class DetailOrderActivity extends AppCompatActivity {
 
         if(!proofPayment.equals("Belum Bayar")) {
             binding.placeHolder.setVisibility(View.GONE);
-            Log.e("TAG", proofPayment);
             Glide.with(this)
                     .load(proofPayment)
                     .into(binding.roundedImageView2);
@@ -132,10 +132,9 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
-                        if (document.get("role") == "admin") {
-                            isAdmin = true;
-                        }
+                        role = (String) document.get("role");
                     }
+                    Log.e("TAG", role);
                 });
     }
 
@@ -233,10 +232,20 @@ public class DetailOrderActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_proof_payment, menu);
 
         // jika bukan admin maka sembunyikan ikon ceklis untuk memverifikasi pembayaran
-        MenuItem item = menu.findItem(R.id.menu_accept);
-        if(!isAdmin) {
-            item.setVisible(false);
-        }
+        MenuItem item = menu.findItem(R.id.menu_accept).setVisible(false);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(role.equals("admin")) {
+                    item.setVisible(true);
+                }
+            }
+        }, 2000);
+
+
+
         return true;
     }
 
