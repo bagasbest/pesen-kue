@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,7 +29,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailProductBinding;
 import com.salwa.salwa.homepage.HomeActivity;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -328,10 +328,35 @@ public class DetailProductActivity extends AppCompatActivity {
                                 .delete()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
-                                        Intent intent = new Intent(this, HomeActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
-                                        finish();
+
+                                        // hapus rating produk tersebut
+                                        FirebaseFirestore
+                                                .getInstance()
+                                                .collection("product")
+                                                .document(id)
+                                                .collection("rating")
+                                                .document()
+                                                .delete();
+
+                                        // hapus review produk tersebut
+                                        FirebaseFirestore
+                                                .getInstance()
+                                                .collection("product")
+                                                .document(id)
+                                                .collection("review")
+                                                .document()
+                                                .delete();
+
+
+                                        // kembali ke halaman utama
+                                        final Handler handler = new Handler();
+                                        handler.postDelayed(() -> {
+                                            Intent intent = new Intent(DetailProductActivity.this, HomeActivity.class);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                            finish();
+                                        }, 3000);
+
                                     } else {
                                         Toast.makeText(DetailProductActivity.this, "Gagal menghapus produk", Toast.LENGTH_SHORT).show();
                                     }

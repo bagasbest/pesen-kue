@@ -33,12 +33,9 @@ public class ProductFragment extends Fragment {
     private String uid;
     private boolean isVisible = true;
 
-    private ProductAdapter productAdapter;
-
     @Override
     public void onResume() {
         super.onResume();
-        initRecyclerView();
         initViewModel();
     }
 
@@ -66,27 +63,26 @@ public class ProductFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void initRecyclerView() {
-        // tampilkan daftar cookies
-        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        productAdapter = new ProductAdapter();
-        binding.recyclerView.setAdapter(productAdapter);
-    }
-
     // inisiasi view model untuk menampilkan list produk
     private void initViewModel() {
         ProductViewModel productViewModel = new ViewModelProvider(this).get(ProductViewModel.class);
+
+        // tampilkan daftar cookies
+        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        ProductAdapter productAdapter = new ProductAdapter();
+        binding.recyclerView.setAdapter(productAdapter);
+
         binding.progressBar.setVisibility(View.VISIBLE);
-        productViewModel.getProductList().observe(this, productList -> {
-            binding.progressBar.setVisibility(View.GONE);
+        productViewModel.setProductList();
+        productViewModel.getProductList().observe(getViewLifecycleOwner(), productList -> {
             if (productList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);
                 productAdapter.setData(productList);
             } else {
                 binding.noData.setVisibility(View.VISIBLE);
             }
+            binding.progressBar.setVisibility(View.GONE);
         });
-        productViewModel.setProductList();
     }
 
     private void showHideNameAndGreeting() {

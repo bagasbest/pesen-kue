@@ -18,7 +18,6 @@ import com.salwa.salwa.databinding.FragmentCartBinding;
 
 public class CartFragment extends Fragment {
 
-    private CartViewModel cartViewModel;
     private FragmentCartBinding binding;
 
 
@@ -46,7 +45,7 @@ public class CartFragment extends Fragment {
     // inisiasi viewModel untuk menampilkan barang yang ada di keranjang anda
     private void initViewModel() {
         // tampilkan daftar belanjaan di keranjang kustomer
-        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
+        CartViewModel cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
         String customerUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         binding.rvCart.setLayoutManager(new LinearLayoutManager(getActivity()));

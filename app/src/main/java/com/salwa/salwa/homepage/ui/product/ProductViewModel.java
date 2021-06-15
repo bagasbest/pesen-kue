@@ -38,7 +38,7 @@ public class ProductViewModel extends ViewModel {
 
                         totalData = task.getResult().size();
 
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && totalData > 0) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
 
                                 String productId = "" + document.get("productId");
@@ -51,7 +51,11 @@ public class ProductViewModel extends ViewModel {
                                 getRating(productId, title, description, image, price, likes);
 
                             }
-                        } else {
+                        } else if(totalData == 0) {
+                            Log.d(TAG, "Total data 0", task.getException());
+                            listProduct.postValue(productArrayList);
+                        }
+                        else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     });
