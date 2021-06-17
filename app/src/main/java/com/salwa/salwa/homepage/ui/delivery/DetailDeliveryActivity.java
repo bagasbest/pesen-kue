@@ -212,6 +212,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                     if(task.isSuccessful()) {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
+                        binding.deleteDelivery.setVisibility(View.VISIBLE);
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();

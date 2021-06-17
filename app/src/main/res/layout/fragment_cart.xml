@@ -35,7 +35,7 @@
         android:id="@+id/noData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tidak Ada Produk\nTersedia"
+        android:text="Belum Ada Produk Di Keranjang"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="32sp"
