@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityHomeBinding;
 import com.salwa.salwa.homepage.ui.cart.CartFragment;
+import com.salwa.salwa.homepage.ui.delivery.DeliveryFragment;
 import com.salwa.salwa.homepage.ui.order.OrderFragment;
 import com.salwa.salwa.homepage.ui.product.ProductFragment;
 
@@ -34,6 +35,7 @@ public class HomeActivity extends AppCompatActivity {
                     navView.getMenu().findItem(R.id.navigation_product).setEnabled(false);
                     navView.getMenu().findItem(R.id.navigation_cart).setEnabled(true);
                     navView.getMenu().findItem(R.id.navigation_payment).setEnabled(true);
+                    navView.getMenu().findItem(R.id.navigation_delivery).setEnabled(true);
                     selectedFragment = new ProductFragment();
                     break;
                 }
@@ -41,6 +43,7 @@ public class HomeActivity extends AppCompatActivity {
                     navView.getMenu().findItem(R.id.navigation_product).setEnabled(true);
                     navView.getMenu().findItem(R.id.navigation_cart).setEnabled(false);
                     navView.getMenu().findItem(R.id.navigation_payment).setEnabled(true);
+                    navView.getMenu().findItem(R.id.navigation_delivery).setEnabled(true);
                     selectedFragment = new CartFragment();
                     break;
                 }
@@ -48,7 +51,16 @@ public class HomeActivity extends AppCompatActivity {
                     navView.getMenu().findItem(R.id.navigation_product).setEnabled(true);
                     navView.getMenu().findItem(R.id.navigation_cart).setEnabled(true);
                     navView.getMenu().findItem(R.id.navigation_payment).setEnabled(false);
+                    navView.getMenu().findItem(R.id.navigation_delivery).setEnabled(true);
                     selectedFragment = new OrderFragment();
+                    break;
+                }
+                case R.id.navigation_delivery: {
+                    navView.getMenu().findItem(R.id.navigation_product).setEnabled(true);
+                    navView.getMenu().findItem(R.id.navigation_cart).setEnabled(true);
+                    navView.getMenu().findItem(R.id.navigation_payment).setEnabled(true);
+                    navView.getMenu().findItem(R.id.navigation_delivery).setEnabled(false);
+                    selectedFragment = new DeliveryFragment();
                     break;
                 }
                 default: {

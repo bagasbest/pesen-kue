@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_baseline_payment_24"
         android:title="@string/title_notifications"/>
 
+    <item
+        android:id="@+id/navigation_delivery"
+        android:icon="@drawable/ic_baseline_delivery_dining_24"
+        android:title="@string/delivery" />
+
 </menu>

@@ -12,6 +12,8 @@ public class OrderModel implements Parcelable {
     private int price;
     private String productDp;
     private String productId;
+    private String kecamatan;
+    private String kelurahan;
     private String address;
     private String phone;
     private String title;
@@ -22,6 +24,37 @@ public class OrderModel implements Parcelable {
     private String orderId;
 
     public OrderModel() {}
+
+    protected OrderModel(Parcel in) {
+        addedAt = in.readString();
+        bookedBy = in.readString();
+        description = in.readString();
+        price = in.readInt();
+        productDp = in.readString();
+        productId = in.readString();
+        kecamatan = in.readString();
+        kelurahan = in.readString();
+        address = in.readString();
+        phone = in.readString();
+        title = in.readString();
+        totalProduct = in.readInt();
+        userUid = in.readString();
+        status = in.readString();
+        proofPayment = in.readString();
+        orderId = in.readString();
+    }
+
+    public static final Creator<OrderModel> CREATOR = new Creator<OrderModel>() {
+        @Override
+        public OrderModel createFromParcel(Parcel in) {
+            return new OrderModel(in);
+        }
+
+        @Override
+        public OrderModel[] newArray(int size) {
+            return new OrderModel[size];
+        }
+    };
 
     public String getAddedAt() {
         return addedAt;
@@ -69,6 +102,22 @@ public class OrderModel implements Parcelable {
 
     public void setProductId(String productId) {
         this.productId = productId;
+    }
+
+    public String getKecamatan() {
+        return kecamatan;
+    }
+
+    public void setKecamatan(String kecamatan) {
+        this.kecamatan = kecamatan;
+    }
+
+    public String getKelurahan() {
+        return kelurahan;
+    }
+
+    public void setKelurahan(String kelurahan) {
+        this.kelurahan = kelurahan;
     }
 
     public String getAddress() {
@@ -135,35 +184,6 @@ public class OrderModel implements Parcelable {
         this.orderId = orderId;
     }
 
-    protected OrderModel(Parcel in) {
-        addedAt = in.readString();
-        bookedBy = in.readString();
-        description = in.readString();
-        price = in.readInt();
-        productDp = in.readString();
-        productId = in.readString();
-        address = in.readString();
-        phone = in.readString();
-        title = in.readString();
-        totalProduct = in.readInt();
-        userUid = in.readString();
-        status = in.readString();
-        proofPayment = in.readString();
-        orderId = in.readString();
-    }
-
-    public static final Creator<OrderModel> CREATOR = new Creator<OrderModel>() {
-        @Override
-        public OrderModel createFromParcel(Parcel in) {
-            return new OrderModel(in);
-        }
-
-        @Override
-        public OrderModel[] newArray(int size) {
-            return new OrderModel[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return 0;
@@ -177,6 +197,8 @@ public class OrderModel implements Parcelable {
         parcel.writeInt(price);
         parcel.writeString(productDp);
         parcel.writeString(productId);
+        parcel.writeString(kecamatan);
+        parcel.writeString(kelurahan);
         parcel.writeString(address);
         parcel.writeString(phone);
         parcel.writeString(title);

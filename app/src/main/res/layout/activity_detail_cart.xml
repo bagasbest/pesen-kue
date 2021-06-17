@@ -50,19 +50,44 @@
                 android:layout_marginTop="40dp"
                 android:text="Name: Person Name" />
 
+
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="70dp"
+                app:startIconTint="@android:color/holo_red_light"
+                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
                 android:layout_marginEnd="16dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/addressEt"
+                <AutoCompleteTextView
+                    android:id="@+id/kecamatan"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Masukkan alamat anda" />
+                    android:inputType="none"
+                    android:hint="Pilih Kecamatan"
+                    android:layout_weight="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="140dp"
+                app:startIconTint="@android:color/holo_red_light"
+                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
+                android:layout_marginEnd="16dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/kelurahan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:hint="Pilih Kelurahan/Desa"
+                    android:layout_weight="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -71,7 +96,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="140dp"
+                android:layout_marginTop="210dp"
+                android:layout_marginEnd="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/addressEt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Jalan x, Gang y, Nomor.123, RT.001, RW.001" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="280dp"
                 android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText

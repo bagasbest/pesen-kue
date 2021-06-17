@@ -37,6 +37,8 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 orderModel.setProductDp("" + document.get("productDp"));
                                 orderModel.setProductId("" + document.get("productId"));
+                                orderModel.setKecamatan("" + document.get("kecamatan"));
+                                orderModel.setKelurahan("" + document.get("kelurahan"));
                                 orderModel.setAddress("" + document.get("address"));
                                 orderModel.setPhone("" + document.get("phone"));
                                 orderModel.setTitle("" + document.get("title"));
@@ -76,6 +78,8 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 orderModel.setProductDp("" + document.get("productDp"));
                                 orderModel.setProductId("" + document.get("productId"));
+                                orderModel.setKecamatan("" + document.get("kecamatan"));
+                                orderModel.setKelurahan("" + document.get("kelurahan"));
                                 orderModel.setAddress("" + document.get("address"));
                                 orderModel.setPhone("" + document.get("phone"));
                                 orderModel.setTitle("" + document.get("title"));

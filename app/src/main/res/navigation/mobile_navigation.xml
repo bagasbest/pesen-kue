@@ -22,4 +22,12 @@
         android:name="com.salwa.salwa.homepage.ui.order.OrderFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_order" />
+
+    <fragment
+        android:id="@+id/navigation_delivery"
+        android:name="com.salwa.salwa.homepage.ui.delivery.DeliveryFragment"
+        android:label="Delivery"
+        tools:layout="@layout/fragment_delivery" />
+
+
 </navigation>

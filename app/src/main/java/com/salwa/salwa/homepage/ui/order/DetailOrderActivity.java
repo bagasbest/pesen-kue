@@ -49,6 +49,8 @@ public class DetailOrderActivity extends AppCompatActivity {
     private int price;
     private String productDp;
     private String productId;
+    private String kecamatan;
+    private String kelurahan;
     private String address;
     private String phone;
     private String title;
@@ -84,6 +86,8 @@ public class DetailOrderActivity extends AppCompatActivity {
         price = om.getPrice();
         productDp = om.getProductDp();
         productId = om.getProductId();
+        kecamatan = om.getKecamatan();
+        kelurahan = om.getKelurahan();
         address = om.getAddress();
         phone = om.getPhone();
         totalProduct = om.getTotalProduct();
@@ -97,6 +101,8 @@ public class DetailOrderActivity extends AppCompatActivity {
         binding.name.setText("Nama: " + bookedBy);
         binding.waktu.setText("Waktu: " + addedAt);
         binding.totalProduct.setText("Total Produk: " + totalProduct);
+        binding.kecamatan.setText("Kecamatan: " + kecamatan);
+        binding.kelurahan.setText("Kelurahan: " + kelurahan);
         binding.address.setText("Alamat: " + address);
         binding.textView7.setText("No.Telepon: " + phone);
         binding.price.setText("Total Harga: " + price);
