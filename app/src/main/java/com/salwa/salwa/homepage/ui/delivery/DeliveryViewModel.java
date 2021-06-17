@@ -85,7 +85,7 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setTotalProduct(Integer.parseInt("" + document.get("totalProduct")));
                                 deliveryModel.setUserUid("" + document.get("userUid"));
                                 deliveryModel.setDeliveryStatus("" + document.get("deliveryStatus"));
-                                deliveryModel.setDeliveryId("" + document.get("orderId"));
+                                deliveryModel.setDeliveryId("" + document.get("deliveryId"));
 
                                 deliveryModelArrayList.add(deliveryModel);
                             }

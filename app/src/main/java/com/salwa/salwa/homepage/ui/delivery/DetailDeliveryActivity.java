@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -78,9 +79,9 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         deliveryId = dm.getDeliveryId();
 
         binding.title.setText(title);
-        binding.name.setText("Nama: " + bookedBy);
-        binding.waktu.setText("Waktu: " + addedAt);
-        binding.totalProduct.setText("Total Produk: " + totalProduct);
+        binding.name.setText("Pemesan: " + bookedBy);
+        binding.waktu.setText("Waktu pemesanan: " + addedAt);
+        binding.totalProduct.setText("Total Pembelian Produk: " + totalProduct);
         binding.kecamatan.setText("Kecamatan: " + kecamatan);
         binding.kelurahan.setText("Kelurahan: " + kelurahan);
         binding.address.setText("Detail Alamat: " + address);
@@ -198,18 +199,23 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         delivery.put("deliveryStatus", "Sudah Dikirim");
         delivery.put("addedAt", format);
 
+        binding.waktu.setText(format);
+
+        Log.e("TAG", deliveryId);
+
         FirebaseFirestore
                 .getInstance()
                 .collection("delivery")
                 .document(deliveryId)
                 .update(delivery)
                 .addOnCompleteListener(task -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                    if(task.isSuccessful()) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
+                    } else {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
