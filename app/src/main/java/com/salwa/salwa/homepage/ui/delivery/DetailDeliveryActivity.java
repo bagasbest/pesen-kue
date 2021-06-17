@@ -148,20 +148,22 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         MenuItem item2 = menu.findItem(R.id.menu_delete).setVisible(false);
 
 
-        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (("" + document.get("role")).equals("admin")) {
-                            item.setVisible(true);
+        if(deliveryStatus.equals("Belum Dikirim")) {
+            // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (("" + document.get("role")).equals("admin")) {
+                                item.setVisible(true);
+                            }
                         }
-                    }
-                });
+                    });
+        }
         return true;
     }
 
