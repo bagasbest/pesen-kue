@@ -33,6 +33,8 @@ import com.salwa.salwa.databinding.ActivityDetailOrderBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -301,9 +303,8 @@ public class DetailOrderActivity extends AppCompatActivity {
     private void showConfirmDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Konfirmasi Status Pembayaran")
-                .setMessage("Apakah anada yakin kustomer telah melakukan transfer uang ke rekening anda untuk membeli produk ini ?")
+                .setMessage("Apakah anda yakin kustomer telah melakukan transfer uang ke rekening anda untuk membeli produk ini ?")
                 .setPositiveButton("YA", (dialogInterface, i) -> {
-                    binding.progressBar.setVisibility(View.VISIBLE);
                     // order produk
                     updateStatusOrder();
                 })
@@ -313,21 +314,62 @@ public class DetailOrderActivity extends AppCompatActivity {
     }
 
     private void updateStatusOrder() {
+        ProgressDialog mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Mohon tunggu hingga proses selesai...");
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.show();
+
+        // set time in millis
+        String timeInMillis = String.valueOf(System.currentTimeMillis());
+
+        // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat getDate = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss");
+        String format = getDate.format(new Date());
+
+        Map<String, Object> deliverProduct = new HashMap<>();
+        deliverProduct.put("bookedBy", bookedBy);
+        deliverProduct.put("userUid", uid);
+        deliverProduct.put("kecamatan", kecamatan);
+        deliverProduct.put("kelurahan", kelurahan);
+        deliverProduct.put("address", address);
+        deliverProduct.put("phone", phone);
+        deliverProduct.put("title", title);
+        deliverProduct.put("price", price);
+        deliverProduct.put("totalProduct", totalProduct);
+        deliverProduct.put("productDp", productDp);
+        deliverProduct.put("addedAt", format);
+        deliverProduct.put("deliveryStatus", "Belum Dikirim");
+        deliverProduct.put("deliveryId", timeInMillis);
+
 
         Map<String, Object> payment = new HashMap<>();
         payment.put("paymentStatus", "Sudah Bayar");
-
         FirebaseFirestore
                 .getInstance()
                 .collection("order")
                 .document(orderId)
                 .update(payment)
                 .addOnCompleteListener(task -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(DetailOrderActivity.this, "Berhasil memperbarui status pembayaran menjadi Sudah Membayar", Toast.LENGTH_SHORT).show();
+
+                    FirebaseFirestore
+                            .getInstance()
+                            .collection("delivery")
+                            .document(timeInMillis)
+                            .set(deliverProduct)
+                            .addOnCompleteListener(task1 -> {
+                                if(task1.isSuccessful()) {
+                                    mProgressDialog.dismiss();
+                                    Toast.makeText(DetailOrderActivity.this, "Berhasil memperbarui status pembayaran menjadi Sudah Membayar", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    mProgressDialog.dismiss();
+                                    Toast.makeText(DetailOrderActivity.this, "Gagal memperbarui status pembayaran", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                 })
                 .addOnFailureListener(e -> {
-                    binding.progressBar.setVisibility(View.GONE);
+                    mProgressDialog.dismiss();
                     Toast.makeText(DetailOrderActivity.this, "Gagal memperbarui status pembayaran", Toast.LENGTH_SHORT).show();
                 });
     }
