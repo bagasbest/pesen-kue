@@ -1,6 +1,7 @@
 package com.salwa.salwa.homepage.ui.delivery;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,12 +50,13 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
 
     public static class DeliveryViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView productDp, deleteDelivery;
+        ImageView productDp;
 
         TextView title, pembeli, waktu, totalItem, totalHarga;
         View view10;
         TextView deliveryStatus;
 
+        CardView cardView4;
 
         public DeliveryViewHolder(View view) {
             super(view);
@@ -66,6 +69,7 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
             totalHarga = view.findViewById(R.id.price);
             view10 = view.findViewById(R.id.view10);
             deliveryStatus = view.findViewById(R.id.deliveryStatus);
+            cardView4 = view.findViewById(R.id.cardView4);
         }
 
         @SuppressLint("SetTextI18n")
@@ -85,11 +89,13 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
             if(deliveryModel.getDeliveryStatus().equals("Sudah Dikirim")) {
                 view10.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
                 deliveryStatus.setText(deliveryModel.getDeliveryStatus());
-                deleteDelivery.setVisibility(View.VISIBLE);
             }
 
-            view10.setOnClickListener(view -> {
 
+            cardView4.setOnClickListener(view -> {
+                Intent intent = new Intent(itemView.getContext(), DetailDeliveryActivity.class);
+                intent.putExtra(DetailDeliveryActivity.ITEM_DELIVERY, deliveryModel);
+                itemView.getContext().startActivity(intent);
             });
         }
     }
