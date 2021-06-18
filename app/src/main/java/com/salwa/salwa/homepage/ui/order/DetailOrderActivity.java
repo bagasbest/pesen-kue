@@ -229,21 +229,24 @@ public class DetailOrderActivity extends AppCompatActivity {
         // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
         MenuItem item2 = menu.findItem(R.id.menu_delete).setVisible(false);
 
-
-        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (("" + document.get("role")).equals("admin")) {
-                            item.setVisible(true);
+        if(status.equals("Belum Bayar")) {
+            // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (("" + document.get("role")).equals("admin")) {
+                                item.setVisible(true);
+                            }
                         }
-                    }
-                });
+                    });
+        }
+
+
 
         // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
         FirebaseFirestore
@@ -329,7 +332,7 @@ public class DetailOrderActivity extends AppCompatActivity {
 
         Map<String, Object> deliverProduct = new HashMap<>();
         deliverProduct.put("bookedBy", bookedBy);
-        deliverProduct.put("userUid", uid);
+        deliverProduct.put("userUid", userUid);
         deliverProduct.put("kecamatan", kecamatan);
         deliverProduct.put("kelurahan", kelurahan);
         deliverProduct.put("address", address);

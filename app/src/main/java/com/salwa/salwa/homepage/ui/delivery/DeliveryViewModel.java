@@ -20,9 +20,8 @@ public class DeliveryViewModel extends ViewModel {
 
     // sisi kustomer yang ditamplikan hanya daftar orderan sendiri
     public void setDeliveryList(String customerUid) {
-
+        deliveryModelArrayList.clear();
         try {
-            deliveryModelArrayList.clear();
             FirebaseFirestore
                     .getInstance()
                     .collection("delivery")
@@ -44,7 +43,7 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setTotalProduct(Integer.parseInt("" + document.get("totalProduct")));
                                 deliveryModel.setUserUid("" + document.get("userUid"));
                                 deliveryModel.setDeliveryStatus("" + document.get("deliveryStatus"));
-                                deliveryModel.setDeliveryId("" + document.get("orderId"));
+                                deliveryModel.setDeliveryId("" + document.get("deliveryId"));
 
                                 deliveryModelArrayList.add(deliveryModel);
                             }

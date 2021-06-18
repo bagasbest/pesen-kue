@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +76,8 @@ public class DeliveryFragment extends Fragment {
         binding.rvDelivery.setLayoutManager(new LinearLayoutManager(getActivity()));
         deliveryAdapter = new DeliveryAdapter();
         binding.rvDelivery.setAdapter(deliveryAdapter);
+
+        Log.d("TAG", role);
 
         if (role.equals("admin")) {
             deliveryViewModel.setDeliveryByAdminSide();
