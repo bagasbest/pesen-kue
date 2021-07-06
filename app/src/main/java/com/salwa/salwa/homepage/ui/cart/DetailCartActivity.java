@@ -3,37 +3,26 @@ package com.salwa.salwa.homepage.ui.cart;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailCartBinding;
-import com.salwa.salwa.homepage.ui.cart.location.api.RetroInstance;
-import com.salwa.salwa.homepage.ui.cart.location.api.RetroService;
-import com.salwa.salwa.homepage.ui.cart.location.response.KecamatanItem;
-import com.salwa.salwa.homepage.ui.cart.location.response.KecamatanResponse;
-import com.salwa.salwa.homepage.ui.cart.location.response.KelurahanItem;
-import com.salwa.salwa.homepage.ui.cart.location.response.KelurahanResponse;
+import com.salwa.salwa.utils.DatePickerFragment;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class DetailCartActivity extends AppCompatActivity{
+public class DetailCartActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener{
 
     private ActivityDetailCartBinding binding;
 
@@ -47,13 +36,11 @@ public class DetailCartActivity extends AppCompatActivity{
     private int totalProduct;
     private String customerUid;
     private String cartId;
+    private String shopId;
+    private String address;
+    private boolean isPickup = false;
+    private String dateTime;
 
-    private String namaKecamatan;
-    private String namaKelurahan;
-    private int idKecamatan;
-
-    private List<KecamatanItem> kecamatanItems = new ArrayList<>();
-    private List<KelurahanItem> kelurahanItems = new ArrayList<>();
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -79,13 +66,14 @@ public class DetailCartActivity extends AppCompatActivity{
         totalProduct = cm.getTotalProduct();
         customerUid = cm.getUserUid();
         cartId = cm.getCartId();
+        shopId = cm.getShopId();
 
 
-        binding.name.setText("Nama : " + bookedBy);
+        binding.name.setText("Name : " + bookedBy);
         binding.title.setText(title);
         binding.description.setText(description);
-        binding.price.setText("Total Harga: Rp. " + price);
-        binding.totalProduct.setText("Total Pemesanan Produk: " + totalProduct);
+        binding.price.setText("Total Proce: Rp. " + price);
+        binding.totalProduct.setText("Total Quantity: " + totalProduct + " Product");
 
         Glide.with(this)
                 .load(productDp)
@@ -93,83 +81,53 @@ public class DetailCartActivity extends AppCompatActivity{
                 .error(R.drawable.ic_baseline_broken_image_24)
                 .into(binding.productDp);
 
-        // ambil data kecamatan
-        retrieveData();
-
-
         // klik tombol pemesanan
         binding.btnOrder.setOnClickListener(view -> {
             // validasi pemesanan produk
             validateFormToOrder();
         });
 
+        // CEK APAKAH PENGGUNA KLIK PICKUP ATAU TIDAK
+        checkIsPickupOrNot();
+
+        // PILIH WAKTU PICKUP
+        getDateTimePickup();
+
     }
 
-    private void retrieveData() {
-        RetroService kecamatan = RetroInstance.konekRetrofit().create(RetroService.class);
-        Call<KecamatanResponse> kecamatanResponseCall = kecamatan.ardRetrieveKecamatan();
-
-        kecamatanResponseCall.enqueue(new Callback<KecamatanResponse>() {
-            @Override
-            public void onResponse(Call<KecamatanResponse> call, Response<KecamatanResponse> response) {
-                assert response.body() != null;
-                kecamatanItems = response.body().getKecamatan();
-
-                // tampilkan kecamatan dan kelurahan melalui spinner / dropdown
-                showSpinner();
-            }
-
-            @Override
-            public void onFailure(Call<KecamatanResponse> call, Throwable t) {
-
-            }
+    private void getDateTimePickup() {
+        binding.dateTime.setOnClickListener(view -> {
+            DatePickerFragment datePickerFragment = new DatePickerFragment();
+            datePickerFragment.show(getSupportFragmentManager(), "DatePicker");
         });
     }
 
-    private void showSpinner() {
-        //tampilkan kecamatan
-        ArrayAdapter<KecamatanItem> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, kecamatanItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.kecamatan.setAdapter(adapter);
-        binding.kecamatan.setOnItemClickListener((adapterView, view, i, l) -> {
-            namaKecamatan =  binding.kecamatan.getText().toString();
-            idKecamatan = kecamatanItems.get((int) adapterView.getItemIdAtPosition(i)).getId();
-
-            retrieveData2(idKecamatan);
-        });
-    }
-
-    private void retrieveData2(int idKecamatan) {
-        RetroService kelurahan = RetroInstance.konekRetrofit().create(RetroService.class);
-        Call<KelurahanResponse> kelurahanResponseCall = kelurahan.ardRetrieveKelurahan(idKecamatan);
-
-
-        kelurahanResponseCall.enqueue(new Callback<KelurahanResponse>() {
-            @Override
-            public void onResponse(Call<KelurahanResponse> call, Response<KelurahanResponse> response) {
-                assert response.body() != null;
-                kelurahanItems = response.body().getKelurahan();
-
-                // tampilkan kecamatan dan kelurahan melalui spinner / dropdown
-                showSpinner2();
-            }
-
-            @Override
-            public void onFailure(Call<KelurahanResponse> call, Throwable t) {
-
+    @SuppressLint("SetTextI18n")
+    private void checkIsPickupOrNot() {
+        binding.pickup.setOnClickListener(view -> {
+            if(binding.pickup.isChecked()) {
+                FirebaseFirestore
+                        .getInstance()
+                        .collection("shop")
+                        .document(shopId)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            address = ""  +documentSnapshot.get("address");
+                            isPickup = true;
+                            binding.addressEt.setText(address);
+                            binding.dateTime.setVisibility(View.VISIBLE);
+                            binding.addressEt.setEnabled(false);
+                        });
+            } else {
+                binding.addressEt.setText("");
+                isPickup = false;
+                binding.dateTime.setVisibility(View.GONE);
+                binding.addressEt.setEnabled(true);
             }
         });
+
     }
 
-    private void showSpinner2() {
-        //tampilkan kelurahan/desa
-        ArrayAdapter<KelurahanItem> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, kelurahanItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.kelurahan.setAdapter(adapter);
-        binding.kelurahan.setOnItemClickListener((adapterView, view, i, l) -> {
-            namaKelurahan =  binding.kelurahan.getText().toString();
-        });
-    }
 
     @SuppressLint("ResourceType")
     private void validateFormToOrder() {
@@ -182,17 +140,21 @@ public class DetailCartActivity extends AppCompatActivity{
             binding.phoneEt.setError("No. Telepon harus dicantumkan");
             return;
         }
+        else if(isPickup && binding.dateTime.getText().toString().equals("Choose Date Time Here")) {
+            Toast.makeText(DetailCartActivity.this, "Pickup time must be set", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // lakukan pemesanan dan pembayaran
         new AlertDialog.Builder(this)
-                .setTitle("Konfirmasi Pemesanan")
-                .setMessage("Apakah anada yakin ingin melakukan pemesanan produk: " + title + " ?")
-                .setPositiveButton("YA", (dialogInterface, i) -> {
+                .setTitle("Confirmation Order")
+                .setMessage("Are you sure want to order: " + title + " ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
                     binding.progressBar.setVisibility(View.VISIBLE);
                     // order produk
                     orderProduct();
                 })
-                .setNegativeButton("TIDAK", null)
+                .setNegativeButton("NO", null)
                 .setIcon(R.drawable.ic_baseline_payment_24)
                 .setIconAttribute(R.color.secondary)
                 .show();
@@ -211,8 +173,6 @@ public class DetailCartActivity extends AppCompatActivity{
         order.put("productId", productId);
         order.put("bookedBy", bookedBy);
         order.put("userUid", customerUid);
-        order.put("kecamatan", namaKecamatan);
-        order.put("kelurahan", namaKelurahan);
         order.put("address", binding.addressEt.getText().toString().trim());
         order.put("phone", binding.phoneEt.getText().toString().trim());
         order.put("title", title);
@@ -224,6 +184,9 @@ public class DetailCartActivity extends AppCompatActivity{
         order.put("paymentStatus", "Belum Bayar");
         order.put("proofPayment", "Belum Bayar");
         order.put("orderId", timeInMillis);
+        order.put("shopId", shopId);
+        order.put("isPickup", isPickup);
+        order.put("pickupDate", dateTime);
 
         FirebaseFirestore
                 .getInstance()
@@ -255,7 +218,7 @@ public class DetailCartActivity extends AppCompatActivity{
                         // sembunyikan progress bar untuk selesai loading
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailCartActivity.this, "Berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
-
+                        binding.btnOrder.setVisibility(View.GONE);
                     } else {
                         // sembunyikan progress bar untuk selesai loading
                         binding.progressBar.setVisibility(View.GONE);
@@ -268,5 +231,16 @@ public class DetailCartActivity extends AppCompatActivity{
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onDateSet(DatePicker tag, int year, int mon, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, mon, day);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+        dateTime = simpleDateFormat.format(calendar.getTime());
+        binding.dateTime.setText("Pickup on: " + dateTime);
     }
 }

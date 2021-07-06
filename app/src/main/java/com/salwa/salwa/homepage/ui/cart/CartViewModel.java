@@ -36,6 +36,7 @@ public class CartViewModel extends ViewModel {
                                 cartModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 cartModel.setProductDp("" + document.get("productDp"));
                                 cartModel.setProductId("" + document.get("productId"));
+                                cartModel.setShopId("" + document.get("shopId"));
                                 cartModel.setTitle("" + document.get("title"));
                                 cartModel.setTotalProduct(Integer.parseInt("" + document.get("totalProduct")));
                                 cartModel.setUserUid("" + document.get("userUid"));

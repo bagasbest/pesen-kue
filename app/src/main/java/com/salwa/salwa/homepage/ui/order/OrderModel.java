@@ -12,8 +12,6 @@ public class OrderModel implements Parcelable {
     private int price;
     private String productDp;
     private String productId;
-    private String kecamatan;
-    private String kelurahan;
     private String address;
     private String phone;
     private String title;
@@ -22,6 +20,9 @@ public class OrderModel implements Parcelable {
     private String status;
     private String proofPayment;
     private String orderId;
+    private String shopId;
+    private boolean isPickup;
+    private String pickupDate;
 
     public OrderModel() {}
 
@@ -32,8 +33,6 @@ public class OrderModel implements Parcelable {
         price = in.readInt();
         productDp = in.readString();
         productId = in.readString();
-        kecamatan = in.readString();
-        kelurahan = in.readString();
         address = in.readString();
         phone = in.readString();
         title = in.readString();
@@ -42,6 +41,9 @@ public class OrderModel implements Parcelable {
         status = in.readString();
         proofPayment = in.readString();
         orderId = in.readString();
+        shopId = in.readString();
+        isPickup = in.readByte() != 0;
+        pickupDate = in.readString();
     }
 
     public static final Creator<OrderModel> CREATOR = new Creator<OrderModel>() {
@@ -102,22 +104,6 @@ public class OrderModel implements Parcelable {
 
     public void setProductId(String productId) {
         this.productId = productId;
-    }
-
-    public String getKecamatan() {
-        return kecamatan;
-    }
-
-    public void setKecamatan(String kecamatan) {
-        this.kecamatan = kecamatan;
-    }
-
-    public String getKelurahan() {
-        return kelurahan;
-    }
-
-    public void setKelurahan(String kelurahan) {
-        this.kelurahan = kelurahan;
     }
 
     public String getAddress() {
@@ -184,6 +170,30 @@ public class OrderModel implements Parcelable {
         this.orderId = orderId;
     }
 
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public boolean isPickup() {
+        return isPickup;
+    }
+
+    public void setPickup(boolean pickup) {
+        isPickup = pickup;
+    }
+
+    public String getPickupDate() {
+        return pickupDate;
+    }
+
+    public void setPickupDate(String pickupDate) {
+        this.pickupDate = pickupDate;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -197,8 +207,6 @@ public class OrderModel implements Parcelable {
         parcel.writeInt(price);
         parcel.writeString(productDp);
         parcel.writeString(productId);
-        parcel.writeString(kecamatan);
-        parcel.writeString(kelurahan);
         parcel.writeString(address);
         parcel.writeString(phone);
         parcel.writeString(title);
@@ -207,5 +215,8 @@ public class OrderModel implements Parcelable {
         parcel.writeString(status);
         parcel.writeString(proofPayment);
         parcel.writeString(orderId);
+        parcel.writeString(shopId);
+        parcel.writeByte((byte) (isPickup ? 1 : 0));
+        parcel.writeString(pickupDate);
     }
 }

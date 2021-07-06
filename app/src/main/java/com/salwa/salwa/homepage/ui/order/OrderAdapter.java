@@ -50,7 +50,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
 
         View view2, view3;
-        TextView title, name, timeOrdered, totalProduct, price, paymentStatus;
+        TextView title, timeOrdered, totalProduct, price, paymentStatus;
         ImageView productDp;
 
         public OrderViewHolder(@NonNull @NotNull View itemView) {
@@ -58,7 +58,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             title = itemView.findViewById(R.id.title);
             view2 = itemView.findViewById(R.id.view2);
             view3 = itemView.findViewById(R.id.view3);
-            name = itemView.findViewById(R.id.bookedBy);
             timeOrdered = itemView.findViewById(R.id.bookedTime);
             totalProduct = itemView.findViewById(R.id.totalProduct);
             price = itemView.findViewById(R.id.price);
@@ -69,10 +68,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         @SuppressLint("SetTextI18n")
         public void bind(OrderModel orderModel) {
             title.setText(orderModel.getTitle());
-            name.setText("Nama: " + orderModel.getBookedBy());
-            timeOrdered.setText("Waktu: " + orderModel.getAddedAt());
-            totalProduct.setText("Total pembelian: " + orderModel.getTotalProduct());
-            price.setText("Total harga: Rp." + orderModel.getPrice());
+            timeOrdered.setText("Time: " + orderModel.getAddedAt());
+            totalProduct.setText("Total Quantity: " + orderModel.getTotalProduct() + " Product");
+            price.setText("Total Price: Rp." + orderModel.getPrice());
 
             Glide.with(itemView.getContext())
                     .load(orderModel.getProductDp())
@@ -82,11 +80,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
             if(orderModel.getStatus().equals("Sudah Bayar")) {
                 view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
-                paymentStatus.setText("Status: " + orderModel.getStatus());
+                paymentStatus.setText("Status: Accepted");
             } else if (orderModel.getStatus().equals("Dalam Proses")) {
                 view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
-                paymentStatus.setText("Status: " + orderModel.getStatus());
-
+                paymentStatus.setText("Status: Waiting Payment");
+            } else if (orderModel.getStatus().equals("COD")) {
+                view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
+                paymentStatus.setText("Status: COD");
             }
 
             view2.setOnClickListener(view -> {

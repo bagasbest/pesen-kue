@@ -1,4 +1,4 @@
-package com.salwa.salwa.homepage.ui.product;
+package com.salwa.salwa.homepage.ui.home;
 
 
 import android.os.Parcel;
@@ -6,23 +6,31 @@ import android.os.Parcelable;
 
 public class ProductModel implements Parcelable {
     private String productId;
+    private String shopId;
+    private String shopName;
+    private String shopDp;
     private String image;
     private String title;
     private String description;
     private double likes;
     private int price;
     private int personRated;
+    private String quantity;
 
     public ProductModel(){}
 
     protected ProductModel(Parcel in) {
         productId = in.readString();
+        shopId = in.readString();
+        shopName = in.readString();
+        shopDp = in.readString();
         image = in.readString();
         title = in.readString();
         description = in.readString();
         likes = in.readDouble();
         price = in.readInt();
         personRated = in.readInt();
+        quantity = in.readString();
     }
 
     public static final Creator<ProductModel> CREATOR = new Creator<ProductModel>() {
@@ -43,6 +51,30 @@ public class ProductModel implements Parcelable {
 
     public void setProductId(String productId) {
         this.productId = productId;
+    }
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
+    }
+
+    public String getShopDp() {
+        return shopDp;
+    }
+
+    public void setShopDp(String shopDp) {
+        this.shopDp = shopDp;
     }
 
     public String getImage() {
@@ -93,6 +125,13 @@ public class ProductModel implements Parcelable {
         this.personRated = personRated;
     }
 
+    public String getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
 
     @Override
     public int describeContents() {
@@ -102,11 +141,15 @@ public class ProductModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(productId);
+        parcel.writeString(shopId);
+        parcel.writeString(shopName);
+        parcel.writeString(shopDp);
         parcel.writeString(image);
         parcel.writeString(title);
         parcel.writeString(description);
         parcel.writeDouble(likes);
         parcel.writeInt(price);
         parcel.writeInt(personRated);
+        parcel.writeString(quantity);
     }
 }

@@ -1,4 +1,4 @@
-package com.salwa.salwa.homepage.ui.product;
+package com.salwa.salwa.homepage.ui.home;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -20,9 +20,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.salwa.salwa.R;
-import com.salwa.salwa.databinding.ActivityAddProductBinding;
+import com.salwa.salwa.databinding.ActivityUpdateProductBinding;
 import com.salwa.salwa.homepage.HomeActivity;
-
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,36 +29,56 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class AddProductActivity extends AppCompatActivity {
-
-    private ActivityAddProductBinding binding;
+public class UpdateProductActivity extends AppCompatActivity {
+    private ActivityUpdateProductBinding binding;
 
     // variabel
     private static final int REQUEST_FROM_GALLERY_TO_SELF_PHOTO = 1001;
-    private String productDp = null;
+    public static final String PRODUCT_ID = "pid";
+    public static final String TITLE = "title";
+    public static final String DESCRIPTION = "description";
+    public static final String PRICE = "price";
+    public static final String PRODUCT_DP = "productDp";
+    public static final String QUANTITY = "quantity";
 
+    private String getProductDp;
+    private String getProductId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAddProductBinding.inflate(getLayoutInflater());
+        binding = ActivityUpdateProductBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // tambahkan judul dan ikon back
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Tambah Produk Baru");
+        actionBar.setTitle("Update Produk");
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // ambil data dari produk
+        getProductId = getIntent().getStringExtra(PRODUCT_ID);
+        String getTitle = getIntent().getStringExtra(TITLE);
+        String getDescription = getIntent().getStringExtra(DESCRIPTION);
+        int getPrice = getIntent().getIntExtra(PRICE, 0);
+        getProductDp = getIntent().getStringExtra(PRODUCT_DP);
+        binding.title.setText(getTitle);
+        binding.description.setText(getDescription);
+        binding.price.setText(String.valueOf(getPrice));
+        binding.quantity.setText(getIntent().getStringExtra(QUANTITY));
+        Glide.with(this)
+                .load(getProductDp)
+                .into(binding.productDp);
 
 
         // klik tombol tambahkan produk
         binding.submitProduct.setOnClickListener(view -> {
             // validasi form inputan, jangan sampai ada yang kosong
-            validateFormAddProduct();
+            validateFormUpdateProduct();
         });
 
         // klik tambahkan foto produk
         binding.productDp.setOnClickListener(view -> {
-            ImagePicker.with(AddProductActivity.this)
+            ImagePicker.with(UpdateProductActivity.this)
                     .galleryOnly()
                     .compress(1024)
                     .maxResultSize(1080, 1080)
@@ -69,12 +88,11 @@ public class AddProductActivity extends AppCompatActivity {
         });
     }
 
-
-    // validasi kolom inputan produk
-    private void validateFormAddProduct() {
+    private void validateFormUpdateProduct() {
         String title = Objects.requireNonNull(binding.title.getText()).toString().trim();
         String description = Objects.requireNonNull(binding.description.getText()).toString().trim();
         String price = Objects.requireNonNull(binding.price.getText()).toString().trim();
+        String quantity = Objects.requireNonNull(binding.quantity.getText()).toString().trim();
 
 
         if (title.isEmpty()) {
@@ -86,20 +104,20 @@ public class AddProductActivity extends AppCompatActivity {
         } else if (price.isEmpty()) {
             binding.price.setError("Harga Produk harus diisi");
             return;
-        } else if(productDp == null) {
-            Toast.makeText(AddProductActivity.this, "Anda harus menambahkan gambar produk", Toast.LENGTH_SHORT).show();
+        } else if(getProductDp == null) {
+            Toast.makeText(UpdateProductActivity.this, "Anda harus menambahkan gambar produk", Toast.LENGTH_SHORT).show();
+            return;
+        } else if(quantity.isEmpty()) {
+            binding.quantity.setError("Quantity must be filled");
             return;
         }
 
         // jika tidak ada yang kosong, maka data harus diinpukan ke database
-        inputProductToDatabase(title, description, price);
-
+        inputProductToDatabase(title, description, price, quantity);
     }
 
-
-    private void inputProductToDatabase(String title, String description, String price) {
+    private void inputProductToDatabase(String title, String description, String price, String quantity) {
         binding.progressBar.setVisibility(View.VISIBLE);
-        String timeInMillis = String.valueOf(System.currentTimeMillis());
 
         // ambil tanggal hari ini dengan format: dd - MMM - yyyy, HH:mm:ss
         @SuppressLint("SimpleDateFormat")
@@ -107,23 +125,21 @@ public class AddProductActivity extends AppCompatActivity {
         String format = getDate.format(new Date());
 
         Map<String, Object> users = new HashMap<>();
-        users.put("productId", timeInMillis);
         users.put("title", title);
         users.put("description", description);
         users.put("price", Integer.parseInt(price));
-        users.put("productDp", productDp);
-        users.put("likes", 0);
-        users.put("addedAt", format);
+        users.put("productDp", getProductDp);
         users.put("updatedAt", format);
+        users.put("quantity", quantity);
 
         FirebaseFirestore.getInstance()
                 .collection("product")
-                .document(timeInMillis)
-                .set(users)
+                .document(getProductId)
+                .update(users)
                 .addOnSuccessListener(unused -> {
                     // sembunyikan progress bar untuk selesai loading
                     binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(AddProductActivity.this, "Berhasil menambahkan produk baru", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateProductActivity.this, "Berhasil memperbarui produk", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
@@ -132,10 +148,9 @@ public class AddProductActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     // sembunyikan progress bar untuk selesai loading
                     binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(AddProductActivity.this, "Ups, tidak berhasil menambahkan produk baru", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateProductActivity.this, "Ups, tidak berhasil memperbarui produk", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
@@ -175,19 +190,19 @@ public class AddProductActivity extends AppCompatActivity {
                         mStorageRef.child(imageFileName).getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
                                     mProgressDialog.dismiss();
-                                    productDp = uri.toString();
+                                    getProductDp = uri.toString();
                                     Log.d("uri Image: ", uri.toString());
                                     binding.addHint.setVisibility(View.GONE);
                                 })
                                 .addOnFailureListener(e -> {
                                     mProgressDialog.dismiss();
-                                    Toast.makeText(AddProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(UpdateProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
                                     Log.d("productDp", e.toString());
                                     binding.addHint.setVisibility(View.VISIBLE);
                                 }))
                 .addOnFailureListener(e -> {
                     mProgressDialog.dismiss();
-                    Toast.makeText(AddProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateProductActivity.this, "Gagal mengunggah gambar produk", Toast.LENGTH_SHORT).show();
                     Log.d("productDp", e.toString());
                     binding.addHint.setVisibility(View.VISIBLE);
                 });

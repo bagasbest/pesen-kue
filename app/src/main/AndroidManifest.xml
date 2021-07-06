@@ -14,13 +14,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Salwa">
-        <activity android:name=".homepage.ui.delivery.DetailDeliveryActivity"></activity>
-        <activity android:name=".homepage.ui.product.UpdateProductActivity" />
+        <activity android:name=".homepage.ui.account.view_order.ViewOrderActivity"></activity>
+        <activity android:name=".homepage.ui.account.select_product.SelectProductActivity" />
+        <activity android:name=".homepage.ui.account.ShopActivity" />
+        <activity
+            android:name=".homepage.ui.account.CreateShopUnderReviewActivity"
+            android:theme="@style/Theme.Salwa2" />
+        <activity android:name=".homepage.ui.account.CreateShopActivity" />
+        <activity android:name=".homepage.ui.account.ChangePasswordActivity" />
+        <activity android:name=".homepage.ui.delivery.DetailDeliveryActivity" />
+        <activity android:name=".homepage.ui.home.UpdateProductActivity" />
         <activity android:name=".homepage.ui.order.DetailOrderActivity" />
         <activity android:name=".homepage.ui.cart.DetailCartActivity" />
-        <activity android:name=".homepage.ui.product.ReviewProductActivity" />
-        <activity android:name=".homepage.ui.product.DetailProductActivity" />
-        <activity android:name=".homepage.ui.product.AddProductActivity" />
+        <activity android:name=".homepage.ui.home.ReviewProductActivity" />
+        <activity android:name=".homepage.ui.home.DetailProductActivity" />
+        <activity android:name=".homepage.ui.home.AddProductActivity" />
         <activity
             android:name=".homepage.HomeActivity"
             android:label="@string/title_activity_home" />

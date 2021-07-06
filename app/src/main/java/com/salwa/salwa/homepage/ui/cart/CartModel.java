@@ -10,12 +10,40 @@ public class CartModel implements Parcelable {
     private int price;
     private String productDp;
     private String productId;
+    private String shopId;
     private String title;
     private int totalProduct;
     private String userUid;
     private String cartId;
 
     public CartModel(){}
+
+
+    protected CartModel(Parcel in) {
+        addedAt = in.readString();
+        bookedBy = in.readString();
+        description = in.readString();
+        price = in.readInt();
+        productDp = in.readString();
+        productId = in.readString();
+        shopId = in.readString();
+        title = in.readString();
+        totalProduct = in.readInt();
+        userUid = in.readString();
+        cartId = in.readString();
+    }
+
+    public static final Creator<CartModel> CREATOR = new Creator<CartModel>() {
+        @Override
+        public CartModel createFromParcel(Parcel in) {
+            return new CartModel(in);
+        }
+
+        @Override
+        public CartModel[] newArray(int size) {
+            return new CartModel[size];
+        }
+    };
 
     public String getAddedAt() {
         return addedAt;
@@ -65,6 +93,14 @@ public class CartModel implements Parcelable {
         this.productId = productId;
     }
 
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -97,31 +133,6 @@ public class CartModel implements Parcelable {
         this.cartId = cartId;
     }
 
-    protected CartModel(Parcel in) {
-        addedAt = in.readString();
-        bookedBy = in.readString();
-        description = in.readString();
-        price = in.readInt();
-        productDp = in.readString();
-        productId = in.readString();
-        title = in.readString();
-        totalProduct = in.readInt();
-        userUid = in.readString();
-        cartId = in.readString();
-    }
-
-    public static final Creator<CartModel> CREATOR = new Creator<CartModel>() {
-        @Override
-        public CartModel createFromParcel(Parcel in) {
-            return new CartModel(in);
-        }
-
-        @Override
-        public CartModel[] newArray(int size) {
-            return new CartModel[size];
-        }
-    };
-
     @Override
     public int describeContents() {
         return 0;
@@ -135,6 +146,7 @@ public class CartModel implements Parcelable {
         parcel.writeInt(price);
         parcel.writeString(productDp);
         parcel.writeString(productId);
+        parcel.writeString(shopId);
         parcel.writeString(title);
         parcel.writeInt(totalProduct);
         parcel.writeString(userUid);

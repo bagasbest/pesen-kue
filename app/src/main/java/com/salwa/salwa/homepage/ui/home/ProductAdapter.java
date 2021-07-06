@@ -1,8 +1,7 @@
-package com.salwa.salwa.homepage.ui.product;
+package com.salwa.salwa.homepage.ui.home;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +49,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
 
         ImageView productDp;
-        TextView titleTv, descriptionTv, priceTv, ratingTv;
+        TextView titleTv, shopTv, priceTv, ratingTv;
         ConstraintLayout card;
 
 
@@ -58,7 +57,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             super(itemView);
             productDp = itemView.findViewById(R.id.roundedImageView);
             titleTv = itemView.findViewById(R.id.title);
-            descriptionTv = itemView.findViewById(R.id.description);
+            shopTv = itemView.findViewById(R.id.shop);
             priceTv = itemView.findViewById(R.id.price);
             ratingTv = itemView.findViewById(R.id.rating);
             card = itemView.findViewById(R.id.itemProduct);
@@ -68,7 +67,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         public void bind(ProductModel productModel) {
 
             titleTv.setText(productModel.getTitle());
-            descriptionTv.setText(productModel.getDescription());
+            shopTv.setText(productModel.getShopName());
             priceTv.setText("Rp. " + productModel.getPrice());
             ratingTv.setText(String.format("%.1f", productModel.getLikes()) + " | " + productModel.getPersonRated() +" Penilaian");
 

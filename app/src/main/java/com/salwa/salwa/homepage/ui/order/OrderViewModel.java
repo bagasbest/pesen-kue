@@ -37,8 +37,6 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 orderModel.setProductDp("" + document.get("productDp"));
                                 orderModel.setProductId("" + document.get("productId"));
-                                orderModel.setKecamatan("" + document.get("kecamatan"));
-                                orderModel.setKelurahan("" + document.get("kelurahan"));
                                 orderModel.setAddress("" + document.get("address"));
                                 orderModel.setPhone("" + document.get("phone"));
                                 orderModel.setTitle("" + document.get("title"));
@@ -47,6 +45,9 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setStatus("" + document.get("paymentStatus"));
                                 orderModel.setProofPayment("" + document.get("proofPayment"));
                                 orderModel.setOrderId("" + document.get("orderId"));
+                                orderModel.setShopId("" + document.get("shopId"));
+                                orderModel.setPickup(document.getBoolean("isPickup"));
+                                orderModel.setPickupDate("" + document.get("pickupDate"));
 
                                 orderArrayList.add(orderModel);
                             }
@@ -78,8 +79,6 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 orderModel.setProductDp("" + document.get("productDp"));
                                 orderModel.setProductId("" + document.get("productId"));
-                                orderModel.setKecamatan("" + document.get("kecamatan"));
-                                orderModel.setKelurahan("" + document.get("kelurahan"));
                                 orderModel.setAddress("" + document.get("address"));
                                 orderModel.setPhone("" + document.get("phone"));
                                 orderModel.setTitle("" + document.get("title"));
@@ -88,6 +87,51 @@ public class OrderViewModel extends ViewModel {
                                 orderModel.setStatus("" + document.get("paymentStatus"));
                                 orderModel.setProofPayment("" + document.get("proofPayment"));
                                 orderModel.setOrderId("" + document.get("orderId"));
+                                orderModel.setShopId("" + document.get("shopId"));
+                                orderModel.setPickup(document.getBoolean("isPickup"));
+                                orderModel.setPickupDate("" + document.get("pickupDate"));
+
+                                orderArrayList.add(orderModel);
+                            }
+                            orderList.postValue(orderArrayList);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setOrderListByShopId(String shopId) {
+        orderArrayList.clear();
+        try {
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("order")
+                    .whereEqualTo("shopId", shopId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                OrderModel orderModel = new OrderModel();
+                                orderModel.setAddedAt("" + document.get("addedAt"));
+                                orderModel.setBookedBy("" + document.get("bookedBy"));
+                                orderModel.setDescription("" + document.get("description"));
+                                orderModel.setPrice(Integer.parseInt("" + document.get("price")));
+                                orderModel.setProductDp("" + document.get("productDp"));
+                                orderModel.setProductId("" + document.get("productId"));
+                                orderModel.setAddress("" + document.get("address"));
+                                orderModel.setPhone("" + document.get("phone"));
+                                orderModel.setTitle("" + document.get("title"));
+                                orderModel.setTotalProduct(Integer.parseInt("" + document.get("totalProduct")));
+                                orderModel.setUserUid("" + document.get("userUid"));
+                                orderModel.setStatus("" + document.get("paymentStatus"));
+                                orderModel.setProofPayment("" + document.get("proofPayment"));
+                                orderModel.setOrderId("" + document.get("orderId"));
+                                orderModel.setShopId("" + document.get("shopId"));
+                                orderModel.setPickup(document.getBoolean("isPickup"));
+                                orderModel.setPickupDate("" + document.get("pickupDate"));
 
                                 orderArrayList.add(orderModel);
                             }

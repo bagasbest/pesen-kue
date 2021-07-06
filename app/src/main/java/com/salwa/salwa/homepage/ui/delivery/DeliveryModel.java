@@ -9,8 +9,6 @@ public class DeliveryModel implements Parcelable {
     private String bookedBy;
     private int price;
     private String productDp;
-    private String kecamatan;
-    private String kelurahan;
     private String address;
     private String phone;
     private String title;
@@ -18,6 +16,11 @@ public class DeliveryModel implements Parcelable {
     private String deliveryStatus;
     private String deliveryId;
     private String userUid;
+    private String shopId;
+    private boolean isPickup;
+    private String pickupDate;
+    private String productId;
+    private String cod;
 
     public DeliveryModel() {
     }
@@ -27,8 +30,6 @@ public class DeliveryModel implements Parcelable {
         bookedBy = in.readString();
         price = in.readInt();
         productDp = in.readString();
-        kecamatan = in.readString();
-        kelurahan = in.readString();
         address = in.readString();
         phone = in.readString();
         title = in.readString();
@@ -36,6 +37,11 @@ public class DeliveryModel implements Parcelable {
         deliveryStatus = in.readString();
         deliveryId = in.readString();
         userUid = in.readString();
+        shopId = in.readString();
+        isPickup = in.readByte() != 0;
+        pickupDate = in.readString();
+        productId = in.readString();
+        cod = in.readString();
     }
 
     public static final Creator<DeliveryModel> CREATOR = new Creator<DeliveryModel>() {
@@ -80,22 +86,6 @@ public class DeliveryModel implements Parcelable {
 
     public void setProductDp(String productDp) {
         this.productDp = productDp;
-    }
-
-    public String getKecamatan() {
-        return kecamatan;
-    }
-
-    public void setKecamatan(String kecamatan) {
-        this.kecamatan = kecamatan;
-    }
-
-    public String getKelurahan() {
-        return kelurahan;
-    }
-
-    public void setKelurahan(String kelurahan) {
-        this.kelurahan = kelurahan;
     }
 
     public String getAddress() {
@@ -154,6 +144,46 @@ public class DeliveryModel implements Parcelable {
         this.userUid = userUid;
     }
 
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
+
+    public boolean isPickup() {
+        return isPickup;
+    }
+
+    public void setPickup(boolean pickup) {
+        isPickup = pickup;
+    }
+
+    public String getPickupDate() {
+        return pickupDate;
+    }
+
+    public void setPickupDate(String pickupDate) {
+        this.pickupDate = pickupDate;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public String getCod() {
+        return cod;
+    }
+
+    public void setCod(String cod) {
+        this.cod = cod;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -165,8 +195,6 @@ public class DeliveryModel implements Parcelable {
         parcel.writeString(bookedBy);
         parcel.writeInt(price);
         parcel.writeString(productDp);
-        parcel.writeString(kecamatan);
-        parcel.writeString(kelurahan);
         parcel.writeString(address);
         parcel.writeString(phone);
         parcel.writeString(title);
@@ -174,5 +202,10 @@ public class DeliveryModel implements Parcelable {
         parcel.writeString(deliveryStatus);
         parcel.writeString(deliveryId);
         parcel.writeString(userUid);
+        parcel.writeString(shopId);
+        parcel.writeByte((byte) (isPickup ? 1 : 0));
+        parcel.writeString(pickupDate);
+        parcel.writeString(productId);
+        parcel.writeString(cod);
     }
 }

@@ -35,8 +35,6 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setBookedBy("" + document.get("bookedBy"));
                                 deliveryModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 deliveryModel.setProductDp("" + document.get("productDp"));
-                                deliveryModel.setKecamatan("" + document.get("kecamatan"));
-                                deliveryModel.setKelurahan("" + document.get("kelurahan"));
                                 deliveryModel.setAddress("" + document.get("address"));
                                 deliveryModel.setPhone("" + document.get("phone"));
                                 deliveryModel.setTitle("" + document.get("title"));
@@ -44,6 +42,11 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setUserUid("" + document.get("userUid"));
                                 deliveryModel.setDeliveryStatus("" + document.get("deliveryStatus"));
                                 deliveryModel.setDeliveryId("" + document.get("deliveryId"));
+                                deliveryModel.setShopId("" + document.get("shopId"));
+                                deliveryModel.setPickupDate("" + document.get("pickupDate"));
+                                deliveryModel.setPickup(document.getBoolean("isPickup"));
+                                deliveryModel.setProductId("" + document.get("productId"));
+                                deliveryModel.setCod("" + document.get("cod"));
 
                                 deliveryModelArrayList.add(deliveryModel);
                             }
@@ -59,14 +62,14 @@ public class DeliveryViewModel extends ViewModel {
 
 
     // sisi admin yang ditamplikan seluruh daftar orderan yang siap dikirim
-    public void setDeliveryByAdminSide() {
+    public void setDeliveryBySellerSide(String shopId) {
         deliveryModelArrayList.clear();
 
         try {
             FirebaseFirestore
                     .getInstance()
                     .collection("delivery")
-                    .orderBy("deliveryStatus", Query.Direction.ASCENDING)
+                    .whereEqualTo("shopId", shopId)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -76,8 +79,6 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setBookedBy("" + document.get("bookedBy"));
                                 deliveryModel.setPrice(Integer.parseInt("" + document.get("price")));
                                 deliveryModel.setProductDp("" + document.get("productDp"));
-                                deliveryModel.setKecamatan("" + document.get("kecamatan"));
-                                deliveryModel.setKelurahan("" + document.get("kelurahan"));
                                 deliveryModel.setAddress("" + document.get("address"));
                                 deliveryModel.setPhone("" + document.get("phone"));
                                 deliveryModel.setTitle("" + document.get("title"));
@@ -85,6 +86,12 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setUserUid("" + document.get("userUid"));
                                 deliveryModel.setDeliveryStatus("" + document.get("deliveryStatus"));
                                 deliveryModel.setDeliveryId("" + document.get("deliveryId"));
+                                deliveryModel.setShopId("" + document.get("shopId"));
+                                deliveryModel.setPickupDate("" + document.get("pickupDate"));
+                                deliveryModel.setPickup(document.getBoolean("isPickup"));
+                                deliveryModel.setProductId("" + document.get("productId"));
+                                deliveryModel.setCod("" + document.get("cod"));
+
 
                                 deliveryModelArrayList.add(deliveryModel);
                             }

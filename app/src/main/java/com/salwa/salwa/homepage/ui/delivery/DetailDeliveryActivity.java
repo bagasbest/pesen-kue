@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,14 +12,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailDeliveryBinding;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,8 +34,6 @@ public class DetailDeliveryActivity extends AppCompatActivity {
     private String bookedBy;
     private int price;
     private String productDp;
-    private String kecamatan;
-    private String kelurahan;
     private String address;
     private String phone;
     private String title;
@@ -46,6 +42,11 @@ public class DetailDeliveryActivity extends AppCompatActivity {
     private String deliveryStatus;
     private String deliveryId;
     private String uid = "";
+    private String shopId;
+    private String pickupDate;
+    private boolean isPickup;
+    private String productId;
+    private String cod;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -69,24 +70,29 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         bookedBy = dm.getBookedBy();
         price = dm.getPrice();
         productDp = dm.getProductDp();
-        kecamatan = dm.getKecamatan();
-        kelurahan = dm.getKelurahan();
         address = dm.getAddress();
         phone = dm.getPhone();
         totalProduct = dm.getTotalProduct();
         userUid = dm.getUserUid();
         deliveryStatus = dm.getDeliveryStatus();
         deliveryId = dm.getDeliveryId();
+        shopId = dm.getShopId();
+        pickupDate = dm.getPickupDate();
+        isPickup = dm.isPickup();
+        productId = dm.getProductId();
+        cod = dm.getCod();
 
         binding.title.setText(title);
-        binding.name.setText("Pemesan: " + bookedBy);
-        binding.waktu.setText("Waktu pemesanan: " + addedAt);
-        binding.totalProduct.setText("Total Pembelian Produk: " + totalProduct);
-        binding.kecamatan.setText("Kecamatan: " + kecamatan);
-        binding.kelurahan.setText("Kelurahan: " + kelurahan);
-        binding.address.setText("Detail Alamat: " + address);
+        binding.name.setText("Name: " + bookedBy);
+        binding.totalProduct.setText("Total Quantity: " + totalProduct);
+        binding.addressEt.setText(address);
         binding.textView7.setText("No.Telepon: " + phone);
-        binding.price.setText("Total Harga: " + price);
+        binding.price.setText("Total Price: " + price);
+
+        // JIKA PAYMENT METHOD = COD
+        if(cod.equals("YA")) {
+            binding.cod.setVisibility(View.VISIBLE);
+        }
 
         Glide.with(this)
                 .load(productDp)
@@ -94,6 +100,10 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                 .error(R.drawable.ic_baseline_broken_image_24)
                 .into(binding.productDp);
 
+        // CEK APAKAH PICKUP ATAU TIDAK
+        checkIsPickupOrNot();
+
+        // JIKA DELIVERI SUDAH DIKIRIM, MUNCUL TOMBOL UNTUK MENGHAPUS DELIVERY
         if(deliveryStatus.equals("Sudah Dikirim")) {
             binding.deleteDelivery.setVisibility(View.VISIBLE);
         }
@@ -101,6 +111,15 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         // konfirmasi penghapusan riwayat delivery
         deleteDelivieryHistory();
 
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void checkIsPickupOrNot() {
+        if(isPickup) {
+            binding.pickUp.setChecked(true);
+            binding.dateTime.setVisibility(View.VISIBLE);
+            binding.dateTime.setText("Pickup on: " + pickupDate);
+        }
     }
 
     // konfirmasi penghapusan riwayat delivery
@@ -130,6 +149,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                     if(task.isSuccessful()) {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Berhasil menghapus riwayat delivery ini", Toast.LENGTH_SHORT).show();
+                        binding.deleteDelivery.setVisibility(View.GONE);
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Gagal menghapus riwayat delivery ini", Toast.LENGTH_SHORT).show();
@@ -150,19 +170,9 @@ public class DetailDeliveryActivity extends AppCompatActivity {
 
         if(deliveryStatus.equals("Belum Dikirim")) {
             // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
-            FirebaseFirestore
-                    .getInstance()
-                    .collection("users")
-                    .document(uid)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (("" + document.get("role")).equals("admin")) {
-                                item.setVisible(true);
-                            }
-                        }
-                    });
+           if(shopId.equals(uid)){
+               item.setVisible(true);
+           }
         }
         return true;
     }
@@ -201,10 +211,6 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         delivery.put("deliveryStatus", "Sudah Dikirim");
         delivery.put("addedAt", format);
 
-        binding.waktu.setText(format);
-
-        Log.e("TAG", deliveryId);
-
         FirebaseFirestore
                 .getInstance()
                 .collection("delivery")
@@ -212,13 +218,78 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                 .update(delivery)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
-                        binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
-                        binding.deleteDelivery.setVisibility(View.VISIBLE);
+                        // KURANGI STOK, DAN TAMBAHKAN PENDAPATAN DARI TRANSAKSI
+                        setTransactionToShop();
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
                     }
+                });
+    }
+
+    private void setTransactionToShop() {
+
+        String timeInMillis = String.valueOf(System.currentTimeMillis());
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat getDate = new SimpleDateFormat("MM");
+        String month = getDate.format(new Date());
+
+        // MASUKKAN TRANSAKSI KE SHOP
+        Map<String, Object> transaction = new HashMap<>();
+        transaction.put("name",  title);
+        transaction.put("quantity", totalProduct);
+        transaction.put("price", price);
+        transaction.put("month", month);
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("shop")
+                .document(shopId)
+                .collection("transaction")
+                .document(timeInMillis)
+                .set(transaction)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        // KURANGI STOK SEJUMLAH BARANG TERJUAL
+                        reduceProductStock();
+                    } else {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void reduceProductStock() {
+
+        Log.e("TAG", productId);
+
+        // AMBIL TOTAL PRODUK DALAM DATABASE
+        FirebaseFirestore
+                .getInstance()
+                .collection("product")
+                .document(productId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                   String qty = "" + documentSnapshot.get("quantity");
+                   int reduce = Integer.parseInt(qty) - totalProduct;
+
+                   // UPDATE TOTAL PRODUK
+                    FirebaseFirestore
+                            .getInstance()
+                            .collection("product")
+                            .document(productId)
+                            .update("quantity", String.valueOf(reduce))
+                            .addOnCompleteListener(task -> {
+                               if(task.isSuccessful()) {
+                                   binding.progressBar.setVisibility(View.GONE);
+                                   Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
+                                   binding.deleteDelivery.setVisibility(View.VISIBLE);
+                               } else {
+                                   binding.progressBar.setVisibility(View.GONE);
+                                   Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                               }
+                            });
                 });
     }
 

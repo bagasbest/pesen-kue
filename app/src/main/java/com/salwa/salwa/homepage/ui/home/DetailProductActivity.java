@@ -1,4 +1,4 @@
-package com.salwa.salwa.homepage.ui.product;
+package com.salwa.salwa.homepage.ui.home;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -29,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailProductBinding;
 import com.salwa.salwa.homepage.HomeActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,6 +45,10 @@ public class DetailProductActivity extends AppCompatActivity {
     private String description;
     private int price;
     private String dp;
+    private String shopId;
+    private String shopName;
+    private String shopDp;
+    private String quantity;
 
 
     @SuppressLint({"SetTextI18n", "DefaultLocale"})
@@ -65,6 +70,10 @@ public class DetailProductActivity extends AppCompatActivity {
         description = pm.getDescription();
         price = pm.getPrice();
         dp = pm.getImage();
+        shopId = pm.getShopId();
+        shopName = pm.getShopName();
+        shopDp = pm.getShopDp();
+        quantity = pm.getQuantity();
         double likes = pm.getLikes();
         int personRated = pm.getPersonRated();
 
@@ -72,6 +81,8 @@ public class DetailProductActivity extends AppCompatActivity {
         binding.description.setText(description);
         binding.price.setText("Rp. " + price);
         binding.rating.setText(String.format("%.1f", likes) + " | " + personRated + " Penilaian");
+        binding.productQty.setText(quantity + " Pcs");
+        binding.shopName.setText(shopName);
 
         binding.imageView6.setVisibility(View.GONE);
 
@@ -80,6 +91,10 @@ public class DetailProductActivity extends AppCompatActivity {
                 .placeholder(R.drawable.ic_baseline_broken_image_24)
                 .error(R.drawable.ic_baseline_broken_image_24)
                 .into(binding.productDp);
+
+        Glide.with(this)
+                .load(shopDp)
+                .into(binding.shopDp);
 
 
         // beri penilaian terhadap produk / rating
@@ -133,35 +148,42 @@ public class DetailProductActivity extends AppCompatActivity {
         btnDismiss.setOnClickListener(view -> dialog.dismiss());
 
         btnAddToCart.setOnClickListener(view -> {
-            // jika pengguna menginputkan produk kosong atau 0
-            if (etTotalProduct.getText().toString().trim().isEmpty() || Integer.parseInt(etTotalProduct.getText().toString().trim()) == 0) {
-                Toast.makeText(DetailProductActivity.this, "Minimal 1 produk", Toast.LENGTH_SHORT).show();
-                return;
+
+            // CEK PRODUK APAKAH MENCUKUPI UNTUK DIBELI
+            int getAddedProduct = Integer.parseInt(etTotalProduct.getText().toString().trim());
+            if(Integer.parseInt(quantity) - getAddedProduct > 0) {
+                // jika pengguna menginputkan produk kosong atau 0
+                if (etTotalProduct.getText().toString().trim().isEmpty() || Integer.parseInt(etTotalProduct.getText().toString().trim()) == 0) {
+                    Toast.makeText(DetailProductActivity.this, "Minimal 1 produk", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // jika pengguna menginputkan produk >= 1
+                pb.setVisibility(View.VISIBLE);
+                int totalProduct = Integer.parseInt(etTotalProduct.getText().toString().trim());
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                // total harga produk yang diambil
+                int totalPrice = price * totalProduct;
+
+                // ambil nama pembeli
+                FirebaseFirestore
+                        .getInstance()
+                        .collection("users")
+                        .document(uid)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            // sembunyikan progress bar untuk selesai loading
+                            saveCartProductToDatabase(id, title, description, totalPrice, dp, uid, pb, totalProduct, documentSnapshot.get("name").toString(), dialog);
+                        })
+                        .addOnFailureListener(e -> {
+                            // sembunyikan progress bar untuk selesai loading
+                            pb.setVisibility(View.GONE);
+                            Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                Toast.makeText(DetailProductActivity.this, "Stock not enough", Toast.LENGTH_SHORT).show();
             }
-
-            // jika pengguna menginputkan produk >= 1
-            pb.setVisibility(View.VISIBLE);
-            int totalProduct = Integer.parseInt(etTotalProduct.getText().toString().trim());
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-            // total harga produk yang diambil
-            int totalPrice = price * totalProduct;
-
-            // ambil nama pembeli
-            FirebaseFirestore
-                    .getInstance()
-                    .collection("users")
-                    .document(uid)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        // sembunyikan progress bar untuk selesai loading
-                        saveCartProductToDatabase(id, title, description, totalPrice, dp, uid, pb, totalProduct, documentSnapshot.get("name").toString(), dialog);
-                    })
-                    .addOnFailureListener(e -> {
-                        // sembunyikan progress bar untuk selesai loading
-                        pb.setVisibility(View.GONE);
-                        Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
-                    });
         });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
@@ -220,6 +242,7 @@ public class DetailProductActivity extends AppCompatActivity {
 
         Map<String, Object> users = new HashMap<>();
         users.put("productId", id);
+        users.put("shopId", shopId);
         users.put("bookedBy", name);
         users.put("userUid", uid);
         users.put("title", title);
@@ -289,17 +312,11 @@ public class DetailProductActivity extends AppCompatActivity {
         MenuItem item2 = menu.findItem(R.id.delete).setVisible(false);
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (("" + documentSnapshot.get("role")).equals("admin")) {
-                        item.setVisible(true);
-                        item2.setVisible(true);
-                    }
-                });
+
+        if (shopId.equals(uid)) {
+            item.setVisible(true);
+            item2.setVisible(true);
+        }
         return true;
     }
 
@@ -313,6 +330,7 @@ public class DetailProductActivity extends AppCompatActivity {
             intent.putExtra(UpdateProductActivity.DESCRIPTION, description);
             intent.putExtra(UpdateProductActivity.PRICE, price);
             intent.putExtra(UpdateProductActivity.PRODUCT_DP, dp);
+            intent.putExtra(UpdateProductActivity.QUANTITY, quantity);
             startActivity(intent);
         }
         // Hapus produk

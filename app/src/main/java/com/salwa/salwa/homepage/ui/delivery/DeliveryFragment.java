@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,7 +29,7 @@ public class DeliveryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkIsAdminOrNot();
+        checkIsSellerOrNot();
     }
 
     @Override
@@ -46,26 +47,22 @@ public class DeliveryFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void checkIsAdminOrNot() {
-        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
+    private void checkIsSellerOrNot() {
+        // CEK APAKAH USER YANG SEDANG LOGIN SELLER ATAU BUKAN, JIKA YA, MAKA TAMPILKAN LIST SELURUH DELIVERY YANG MASUK BERDASARKAN SHOP ID
         binding.progressBar.setVisibility(View.VISIBLE);
 
         FirebaseFirestore
                 .getInstance()
-                .collection("users")
+                .collection("shop")
                 .document(uid)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if(("" + document.get("role")).equals("admin")) {
-                            // user yang login adalah admin
-                            initViewModel("admin");
-                        } else {
-                            // user yang login adalah pengguna biasa/kustomer
-                            initViewModel("user");
-                        }
-                    }
+                .addOnSuccessListener(documentSnapshot -> {
+                   if(documentSnapshot.exists()) {
+                       initViewModel("seller");
+                   }
+                   else {
+                       initViewModel("user");
+                   }
                 });
     }
 
@@ -79,8 +76,8 @@ public class DeliveryFragment extends Fragment {
 
         Log.d("TAG", role);
 
-        if (role.equals("admin")) {
-            deliveryViewModel.setDeliveryByAdminSide();
+        if (role.equals("seller")) {
+            deliveryViewModel.setDeliveryBySellerSide(uid);
         } else {
             deliveryViewModel.setDeliveryList(uid);
         }

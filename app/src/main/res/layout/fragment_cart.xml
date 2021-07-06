@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondary"
     tools:context=".homepage.ui.cart.CartFragment">
 
 
@@ -37,7 +36,7 @@
         android:layout_height="wrap_content"
         android:text="Belum Ada Produk Di Keranjang"
         android:textAlignment="center"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="32sp"
         android:textStyle="bold"
         android:visibility="gone"

@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="5dp"
-                android:text="Informasi Pemesan"
+                android:text="Order Information"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -47,72 +47,71 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:textSize="18sp"
+                android:layout_marginEnd="16dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textStyle="bold"
                 android:layout_marginTop="40dp"
                 android:text="Name: Person Name" />
 
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_marginStart="16dp"
+                android:textSize="18sp"
+                android:layout_marginEnd="16dp"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textStyle="bold"
                 android:layout_marginTop="70dp"
-                app:startIconTint="@android:color/holo_red_light"
-                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
-                android:layout_marginEnd="16dp">
+                android:text="Address" />
 
-                <AutoCompleteTextView
-                    android:id="@+id/kecamatan"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:hint="Pilih Kecamatan"
-                    android:layout_weight="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="140dp"
-                app:startIconTint="@android:color/holo_red_light"
-                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
-                android:layout_marginEnd="16dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/kelurahan"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:hint="Pilih Kelurahan/Desa"
-                    android:layout_weight="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="210dp"
+                android:layout_marginTop="100dp"
                 android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/addressEt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Jalan x, Gang y, Nomor.123, RT.001, RW.001" />
+                    android:inputType="textCapWords"
+                    android:lines="1"
+                    android:hint="Address" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <CheckBox
+                android:id="@+id/pickup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/primary"
+                android:layout_marginTop="160dp"
+                android:layout_marginStart="16dp"
+                android:text="Pickup" />
+
+            <Button
+                android:id="@+id/dateTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Choose Date Time Here"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                android:layout_marginTop="210dp"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="280dp"
+                android:layout_marginTop="265dp"
                 android:layout_marginEnd="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -144,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="5dp"
-                android:text="Informasi Produk"
+                android:text="Product Information"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -176,12 +175,24 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginTop="176dp"/>
 
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Description"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="200dp"/>
+
             <TextView
                 android:id="@+id/description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/lorem100"
-                android:layout_marginTop="206dp"
+                android:layout_marginTop="220dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="16dp" />

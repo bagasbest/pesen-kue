@@ -31,7 +31,7 @@ public class OrderFragment extends Fragment {
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Pemesanan dan Pembayaran");
+        getActivity().setTitle("Order");
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,

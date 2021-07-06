@@ -48,7 +48,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     public static class CartViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvTitle, tvName, tvTime, tvTotalProduct, tvTotalPrice;
+        TextView tvTitle, tvTime, tvTotalProduct, tvTotalPrice;
         ImageView imgProduct;
         View view;
 
@@ -56,7 +56,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             super(itemView);
 
             tvTitle = itemView.findViewById(R.id.title);
-            tvName = itemView.findViewById(R.id.bookedBy);
             tvTime = itemView.findViewById(R.id.bookedTime);
             tvTotalProduct = itemView.findViewById(R.id.totalProduct);
             tvTotalPrice = itemView.findViewById(R.id.price);
@@ -67,10 +66,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         @SuppressLint("SetTextI18n")
         public void bind(CartModel cartModel) {
             tvTitle.setText(cartModel.getTitle());
-            tvName.setText("Pembeli: " + cartModel.getBookedBy());
-            tvTime.setText("Waktu: " + cartModel.getAddedAt());
-            tvTotalPrice.setText("Total Harga: Rp. " + cartModel.getPrice());
-            tvTotalProduct.setText("Total pembelian: " + cartModel.getTotalProduct() + " Produk");
+            tvTime.setText("Time: " + cartModel.getAddedAt());
+            tvTotalPrice.setText("Total Price: Rp. " + cartModel.getPrice());
+            tvTotalProduct.setText("Total Quantity: " + cartModel.getTotalProduct() + " Product");
 
             Glide.with(itemView.getContext())
                     .load(cartModel.getProductDp())

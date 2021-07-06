@@ -31,7 +31,7 @@ public class CartFragment extends Fragment {
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Keranjang");
+        getActivity().setTitle("Cart");
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,

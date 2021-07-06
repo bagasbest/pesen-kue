@@ -52,7 +52,7 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
 
         ImageView productDp;
 
-        TextView title, pembeli, waktu, totalItem, totalHarga;
+        TextView title, waktu, totalItem, totalHarga;
         View view10;
         TextView deliveryStatus;
 
@@ -63,7 +63,6 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
 
             title = view.findViewById(R.id.title);
             productDp = view.findViewById(R.id.productDp);
-            pembeli = view.findViewById(R.id.bookedBy);
             waktu = view.findViewById(R.id.waktu);
             totalItem = view.findViewById(R.id.totalProduct);
             totalHarga = view.findViewById(R.id.price);
@@ -75,10 +74,9 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
         @SuppressLint("SetTextI18n")
         public void bind(DeliveryModel deliveryModel) {
             title.setText(deliveryModel.getTitle());
-            pembeli.setText("Pembeli: " + deliveryModel.getBookedBy());
-            waktu.setText("Waktu: "+deliveryModel.getAddedAt());
-            totalItem.setText("Total item: " + deliveryModel.getTotalProduct());
-            totalHarga.setText("Total harga: Rp."+deliveryModel.getPrice());
+            waktu.setText("Time: "+deliveryModel.getAddedAt());
+            totalItem.setText("Total Quantity: " + deliveryModel.getTotalProduct() + " Product");
+            totalHarga.setText("Total Price: Rp."+deliveryModel.getPrice());
 
             Glide.with(itemView.getContext())
                     .load(deliveryModel.getProductDp())
@@ -88,7 +86,7 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
 
             if(deliveryModel.getDeliveryStatus().equals("Sudah Dikirim")) {
                 view10.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
-                deliveryStatus.setText(deliveryModel.getDeliveryStatus());
+                deliveryStatus.setText("Status: Shipped");
             }
 
 

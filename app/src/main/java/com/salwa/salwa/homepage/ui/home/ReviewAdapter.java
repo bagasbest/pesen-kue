@@ -1,4 +1,4 @@
-package com.salwa.salwa.homepage.ui.product;
+package com.salwa.salwa.homepage.ui.home;
 
 import android.view.LayoutInflater;
 import android.view.View;

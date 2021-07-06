@@ -18,21 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailOrderBinding;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,23 +38,22 @@ public class DetailOrderActivity extends AppCompatActivity {
 
 
     public static final String ITEM_ORDER = "order";
-    private String addedAt;
     private String bookedBy;
-    private String description;
     private int price;
     private String productDp;
-    private String productId;
-    private String kecamatan;
-    private String kelurahan;
     private String address;
     private String phone;
     private String title;
     private int totalProduct;
     private String userUid;
     private String status;
-    private String proofPayment;
     private String orderId;
     private String uid = "";
+    private String shopId;
+    private boolean isPickup = false;
+    private String pickupDate;
+    private String productId;
+    private String proofPayment;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -82,14 +74,12 @@ public class DetailOrderActivity extends AppCompatActivity {
         actionBar.setTitle(title);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        addedAt = om.getAddedAt();
+        String addedAt = om.getAddedAt();
         bookedBy = om.getBookedBy();
-        description = om.getDescription();
+        String description = om.getDescription();
         price = om.getPrice();
         productDp = om.getProductDp();
         productId = om.getProductId();
-        kecamatan = om.getKecamatan();
-        kelurahan = om.getKelurahan();
         address = om.getAddress();
         phone = om.getPhone();
         totalProduct = om.getTotalProduct();
@@ -97,15 +87,15 @@ public class DetailOrderActivity extends AppCompatActivity {
         status = om.getStatus();
         proofPayment = om.getProofPayment();
         orderId = om.getOrderId();
+        shopId = om.getShopId();
+        isPickup = om.isPickup();
+        pickupDate = om.getPickupDate();
 
         binding.title.setText(title);
         binding.description.setText(description);
         binding.name.setText("Nama: " + bookedBy);
-        binding.waktu.setText("Waktu: " + addedAt);
         binding.totalProduct.setText("Total Produk: " + totalProduct);
-        binding.kecamatan.setText("Kecamatan: " + kecamatan);
-        binding.kelurahan.setText("Kelurahan: " + kelurahan);
-        binding.address.setText("Alamat: " + address);
+        binding.addressEt.setText(address);
         binding.textView7.setText("No.Telepon: " + phone);
         binding.price.setText("Total Harga: " + price);
 
@@ -115,20 +105,80 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .error(R.drawable.ic_baseline_broken_image_24)
                 .into(binding.productDp);
 
+        // JIKA SUDAH MENGUPLOAD BUKTI PEMBAYARAN, MAKA TIDAK BISA LAGI MENGEDIT DATA
         if (!proofPayment.equals("Belum Bayar")) {
+            binding.savePaymentProof.setVisibility(View.GONE);
+            binding.bank.setVisibility(View.GONE);
+            binding.cod.setVisibility(View.GONE);
+            binding.paymentBank.setVisibility(View.VISIBLE);
             binding.placeHolder.setVisibility(View.GONE);
             Glide.with(this)
                     .load(proofPayment)
                     .into(binding.roundedImageView2);
         }
 
+        // JIKA PEMBAYARAN MELALUI COD
+        if(proofPayment.equals("COD")) {
+            binding.savePaymentProof.setVisibility(View.GONE);
+            binding.bank.setVisibility(View.GONE);
+            binding.cod.setVisibility(View.GONE);
+            binding.paymentBank.setVisibility(View.VISIBLE);
+            binding.codTv.setVisibility(View.VISIBLE);
+            binding.placeHolder.setVisibility(View.GONE);
+            binding.roundedImageView2.setVisibility(View.GONE);
+        }
+
 
         // unggah bukti pembayaran
-        binding.roundedImageView2.setOnClickListener(view -> {
-            uploadProofPayment();
+        if(status.equals("Belum Bayar")) {
+            binding.roundedImageView2.setOnClickListener(view -> {
+                uploadProofPayment();
+            });
+        }
+
+
+        // CEK APAKAH PICKUP ATAU TIDAK
+        checkIsPickupOrNot();
+
+        // PAY WITH BANK ACCOUNT
+        payWithBankAccount();
+
+        // PAY WITH COD
+        payWithCOD();
+
+
+        // KLIK TOMBOL SAVE PAYMENT PROOF
+        binding.savePaymentProof.setOnClickListener(view ->{
+
+            if(proofPayment.equals("Belum Bayar")) {
+                Toast.makeText(DetailOrderActivity.this, "Please, input payment proof", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            setProofPaymentToOrderItem("bank");
         });
 
+    }
 
+    private void payWithCOD() {
+        binding.cod.setOnClickListener(view -> {
+            setProofPaymentToOrderItem("cod");
+        });
+    }
+
+    private void payWithBankAccount() {
+        binding.bank.setOnClickListener(view -> {
+            binding.paymentBank.setVisibility(View.VISIBLE);
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void checkIsPickupOrNot() {
+        if(isPickup) {
+            binding.dateTime.setVisibility(View.VISIBLE);
+            binding.dateTime.setText("Pickup on: " + pickupDate);
+            binding.pickUp.setChecked(true);
+        }
     }
 
     private void uploadProofPayment() {
@@ -172,10 +222,10 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .addOnSuccessListener(taskSnapshot ->
                         mStorageRef.child(imageFileName).getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
-                                    productDp = uri.toString();
+                                    mProgressDialog.dismiss();
+                                    proofPayment = uri.toString();
                                     Log.d("uri Image: ", uri.toString());
                                     binding.placeHolder.setVisibility(View.GONE);
-                                    setProofPaymentToOrderItem(mProgressDialog);
                                 })
                                 .addOnFailureListener(e -> {
                                     mProgressDialog.dismiss();
@@ -191,11 +241,16 @@ public class DetailOrderActivity extends AppCompatActivity {
                 });
     }
 
-    private void setProofPaymentToOrderItem(ProgressDialog mProgressDialog) {
+    private void setProofPaymentToOrderItem(String paymentMethod) {
 
+        binding.progressBar.setVisibility(View.VISIBLE);
         Map<String, Object> proofPaymentImage = new HashMap<>();
         proofPaymentImage.put("paymentStatus", "Dalam Proses");
-        proofPaymentImage.put("proofPayment", productDp);
+        if(paymentMethod.equals("bank")) {
+            proofPaymentImage.put("proofPayment", proofPayment);
+        } else {
+            proofPaymentImage.put("proofPayment", "COD");
+        }
 
         FirebaseFirestore
                 .getInstance()
@@ -203,8 +258,11 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .document(orderId)
                 .update(proofPaymentImage)
                 .addOnCompleteListener(task -> {
-                    mProgressDialog.dismiss();
 
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.savePaymentProof.setVisibility(View.GONE);
+                    binding.cod.setVisibility(View.GONE);
+                    binding.bank.setVisibility(View.GONE);
                     // tampilkan dialog ketika berhasil mengunggah bukti pembayaran
                     new AlertDialog.Builder(this)
                             .setTitle("Berhasil Mengunggah Bukti Pembayaran")
@@ -214,7 +272,7 @@ public class DetailOrderActivity extends AppCompatActivity {
                             .show();
                 })
                 .addOnFailureListener(e -> {
-                    mProgressDialog.dismiss();
+                    binding.progressBar.setVisibility(View.GONE);
                     Toast.makeText(DetailOrderActivity.this, "Gagal mengunggah bukti pembayaran", Toast.LENGTH_SHORT).show();
                 });
     }
@@ -229,23 +287,13 @@ public class DetailOrderActivity extends AppCompatActivity {
         // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
         MenuItem item2 = menu.findItem(R.id.menu_delete).setVisible(false);
 
-        if(status.equals("Belum Bayar")) {
-            // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
-            FirebaseFirestore
-                    .getInstance()
-                    .collection("users")
-                    .document(uid)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (("" + document.get("role")).equals("admin")) {
-                                item.setVisible(true);
-                            }
-                        }
-                    });
+        // SELLER BISA MEMVERIFIKASI ORDER YANG BERSTATUS DALAM PROSES
+        if(status.equals("Dalam Proses")) {
+            // CEK APAKAH SELLER ATAU BUKAN
+           if(uid.equals(shopId)) {
+               item.setVisible(true);
+           }
         }
-
 
 
         // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
@@ -286,14 +334,11 @@ public class DetailOrderActivity extends AppCompatActivity {
                             .collection("order")
                             .document(orderId)
                             .delete()
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull @NotNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        Toast.makeText(DetailOrderActivity.this, "Berhasil menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(DetailOrderActivity.this, "Gagal menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
-                                    }
+                            .addOnCompleteListener(task -> {
+                                if(task.isSuccessful()) {
+                                    Toast.makeText(DetailOrderActivity.this, "Berhasil menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(DetailOrderActivity.this, "Gagal menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
                                 }
                             });
                 })
@@ -333,8 +378,6 @@ public class DetailOrderActivity extends AppCompatActivity {
         Map<String, Object> deliverProduct = new HashMap<>();
         deliverProduct.put("bookedBy", bookedBy);
         deliverProduct.put("userUid", userUid);
-        deliverProduct.put("kecamatan", kecamatan);
-        deliverProduct.put("kelurahan", kelurahan);
         deliverProduct.put("address", address);
         deliverProduct.put("phone", phone);
         deliverProduct.put("title", title);
@@ -344,10 +387,24 @@ public class DetailOrderActivity extends AppCompatActivity {
         deliverProduct.put("addedAt", format);
         deliverProduct.put("deliveryStatus", "Belum Dikirim");
         deliverProduct.put("deliveryId", timeInMillis);
+        deliverProduct.put("shopId", shopId);
+        deliverProduct.put("isPickup", isPickup);
+        deliverProduct.put("pickupDate", pickupDate);
+        deliverProduct.put("productId", productId);
+        if(proofPayment.equals("COD")) {
+            deliverProduct.put("cod","YA");
+        }else {
+            deliverProduct.put("cod","TIDAK");
+        }
 
 
+        // UPDATE STATUS PEMBAYARAN MENJADI SUDAH MEMBAYAR
         Map<String, Object> payment = new HashMap<>();
-        payment.put("paymentStatus", "Sudah Bayar");
+        if(proofPayment.equals("COD")) {
+            payment.put("paymentStatus", "COD");
+        } else {
+            payment.put("paymentStatus", "Sudah Bayar");
+        }
         FirebaseFirestore
                 .getInstance()
                 .collection("order")
@@ -355,6 +412,7 @@ public class DetailOrderActivity extends AppCompatActivity {
                 .update(payment)
                 .addOnCompleteListener(task -> {
 
+                    // KIRIM DATA KE DELIVERY
                     FirebaseFirestore
                             .getInstance()
                             .collection("delivery")

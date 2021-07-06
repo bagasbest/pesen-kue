@@ -4,40 +4,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homepage.ui.product.AddProductActivity">
+    tools:context=".homepage.ui.home.AddProductActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:contentDescription="@string/image"
-            android:src="@drawable/logo_salwa"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout4"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView3">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nama Produk" />
+                android:hint="Product Name" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,7 +49,7 @@
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Deskripsi Produk" />
+                android:hint="Product Description" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -79,26 +70,48 @@
                 android:id="@+id/price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Harga Produk"
+                android:hint="Product Price"
+                android:inputType="number" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout7"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout6">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Product Quantity"
                 android:inputType="number" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/productDp"
-            app:riv_corner_radius="12dp"
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            app:riv_border_color="@color/secondary"
-            app:riv_border_width="2dp"
             android:layout_marginTop="16dp"
-            android:scaleType="fitXY"
             android:contentDescription="@string/image"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout6" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout7"
+            app:riv_border_color="@color/secondary"
+            app:riv_border_width="2dp"
+            app:riv_corner_radius="12dp" />
 
         <ImageView
             android:id="@+id/addHint"
@@ -125,10 +138,10 @@
         <Button
             android:id="@+id/submitProduct"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_marginBottom="30dp"
-            android:backgroundTint="@color/secondary"
-            android:text="Tambahkan Produk"
+            android:backgroundTint="@color/primary"
+            android:text="Add Product"
             android:layout_marginTop="20dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
