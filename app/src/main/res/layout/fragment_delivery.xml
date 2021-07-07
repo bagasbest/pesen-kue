@@ -33,7 +33,7 @@
         android:id="@+id/noData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tidak Ada Riwayat Delivery"
+        android:text="You Dont Have\nDelivery History"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="32sp"

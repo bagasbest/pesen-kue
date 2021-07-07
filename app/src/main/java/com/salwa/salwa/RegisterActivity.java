@@ -111,6 +111,9 @@ public class RegisterActivity extends AppCompatActivity {
                         // sembunyikan progress bar untuk selesai loading
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(RegisterActivity.this, "Anda berhasil mendaftar", Toast.LENGTH_SHORT).show();
+                        etName.setText("");
+                        etEmail.setText("");
+                        etPassword.setText("");
                     }
                 })
                 .addOnFailureListener(e -> {

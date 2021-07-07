@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -80,7 +81,7 @@ public class DetailProductActivity extends AppCompatActivity {
         binding.title.setText(title);
         binding.description.setText(description);
         binding.price.setText("Rp. " + price);
-        binding.rating.setText(String.format("%.1f", likes) + " | " + personRated + " Penilaian");
+        binding.rating.setText(String.format("%.1f", likes) + " | " + personRated + " Rated");
         binding.productQty.setText(quantity + " Pcs");
         binding.shopName.setText(shopName);
 
@@ -128,11 +129,13 @@ public class DetailProductActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void showTotalProductAdded() {
         Dialog dialog;
         Button btnAddToCart, btnDismiss;
         EditText etTotalProduct;
         ProgressBar pb;
+        TextView qty;
 
         dialog = new Dialog(this);
 
@@ -143,6 +146,9 @@ public class DetailProductActivity extends AppCompatActivity {
         btnDismiss = dialog.findViewById(R.id.dismissBtn);
         etTotalProduct = dialog.findViewById(R.id.totalProduct);
         pb = dialog.findViewById(R.id.progress_bar);
+        qty = dialog.findViewById(R.id.quantity);
+
+        qty.setText("Quantity: " + quantity);
 
 
         btnDismiss.setOnClickListener(view -> dialog.dismiss());
@@ -151,10 +157,10 @@ public class DetailProductActivity extends AppCompatActivity {
 
             // CEK PRODUK APAKAH MENCUKUPI UNTUK DIBELI
             int getAddedProduct = Integer.parseInt(etTotalProduct.getText().toString().trim());
-            if(Integer.parseInt(quantity) - getAddedProduct > 0) {
+            if(Integer.parseInt(quantity) - getAddedProduct >= 0) {
                 // jika pengguna menginputkan produk kosong atau 0
                 if (etTotalProduct.getText().toString().trim().isEmpty() || Integer.parseInt(etTotalProduct.getText().toString().trim()) == 0) {
-                    Toast.makeText(DetailProductActivity.this, "Minimal 1 produk", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailProductActivity.this, "Minimum 1 Product", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -179,7 +185,7 @@ public class DetailProductActivity extends AppCompatActivity {
                         .addOnFailureListener(e -> {
                             // sembunyikan progress bar untuk selesai loading
                             pb.setVisibility(View.GONE);
-                            Toast.makeText(DetailProductActivity.this, "Gagal mendapatkan nama pembeli", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DetailProductActivity.this, "Failure get buyer name", Toast.LENGTH_SHORT).show();
                         });
             } else {
                 Toast.makeText(DetailProductActivity.this, "Stock not enough", Toast.LENGTH_SHORT).show();
@@ -262,13 +268,13 @@ public class DetailProductActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     // sembunyikan progress bar untuk selesai loading
                     pb.setVisibility(View.GONE);
-                    Toast.makeText(DetailProductActivity.this, "Berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailProductActivity.this, "Success added product to bucket", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 })
                 .addOnFailureListener(e -> {
                     // sembunyikan progress bar untuk selesai loading
                     pb.setVisibility(View.GONE);
-                    Toast.makeText(DetailProductActivity.this, "Ups, tidak berhasil menambahkan produk ke keranjang", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailProductActivity.this, "Fail added product to bucket", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 });
 
@@ -293,12 +299,12 @@ public class DetailProductActivity extends AppCompatActivity {
                 .addOnSuccessListener(unused -> {
                     pb.setVisibility(View.GONE);
                     dialog.dismiss();
-                    Toast.makeText(DetailProductActivity.this, "Berhasil memberi penilaian", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailProductActivity.this, "Success giving rating product", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
                     pb.setVisibility(View.GONE);
                     dialog.dismiss();
-                    Toast.makeText(DetailProductActivity.this, "Gagal memberi penilaian", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailProductActivity.this, "Failure giving rating product", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -336,9 +342,9 @@ public class DetailProductActivity extends AppCompatActivity {
         // Hapus produk
         else if (item.getItemId() == R.id.delete) {
             new AlertDialog.Builder(this)
-                    .setTitle("Konfirmasi Hapus Produk")
-                    .setMessage("Apakah anada yakin ingin menghapus produk " + title + " ?")
-                    .setPositiveButton("YA", (dialogInterface, i) -> {
+                    .setTitle("Confirm Delete Product")
+                    .setMessage("Are you sure, want to delete " + title + " ?")
+                    .setPositiveButton("YES", (dialogInterface, i) -> {
                         FirebaseFirestore
                                 .getInstance()
                                 .collection("product")
@@ -376,11 +382,11 @@ public class DetailProductActivity extends AppCompatActivity {
                                         }, 3000);
 
                                     } else {
-                                        Toast.makeText(DetailProductActivity.this, "Gagal menghapus produk", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(DetailProductActivity.this, "Failure delete product", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     })
-                    .setNegativeButton("TIDAK", null)
+                    .setNegativeButton("NO", null)
                     .setIcon(R.drawable.ic_baseline_delete_24)
                     .show();
         }

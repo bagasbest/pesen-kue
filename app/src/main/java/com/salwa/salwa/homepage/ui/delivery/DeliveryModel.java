@@ -21,6 +21,7 @@ public class DeliveryModel implements Parcelable {
     private String pickupDate;
     private String productId;
     private String cod;
+    private String orderId;
 
     public DeliveryModel() {
     }
@@ -42,6 +43,7 @@ public class DeliveryModel implements Parcelable {
         pickupDate = in.readString();
         productId = in.readString();
         cod = in.readString();
+        orderId = in.readString();
     }
 
     public static final Creator<DeliveryModel> CREATOR = new Creator<DeliveryModel>() {
@@ -184,6 +186,14 @@ public class DeliveryModel implements Parcelable {
         this.cod = cod;
     }
 
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -207,5 +217,6 @@ public class DeliveryModel implements Parcelable {
         parcel.writeString(pickupDate);
         parcel.writeString(productId);
         parcel.writeString(cod);
+        parcel.writeString(orderId);
     }
 }

@@ -1,19 +1,28 @@
 package com.salwa.salwa.homepage.ui.cart;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailCartBinding;
+import com.salwa.salwa.homepage.ui.order.DetailOrderActivity;
 import com.salwa.salwa.utils.DatePickerFragment;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -133,11 +142,11 @@ public class DetailCartActivity extends AppCompatActivity implements DatePickerD
     private void validateFormToOrder() {
         // validasi form alamat, no telepon
         if(binding.addressEt.getText().toString().trim().isEmpty()) {
-            binding.addressEt.setError("Alamat harus dicantumkan sedetail mungkin");
+            binding.addressEt.setError("Your address must added");
             return;
         }
         else if(binding.phoneEt.getText().toString().trim().isEmpty()) {
-            binding.phoneEt.setError("No. Telepon harus dicantumkan");
+            binding.phoneEt.setError("Your phone number must added");
             return;
         }
         else if(isPickup && binding.dateTime.getText().toString().equals("Choose Date Time Here")) {
@@ -200,7 +209,7 @@ public class DetailCartActivity extends AppCompatActivity implements DatePickerD
                     }else {
                         // sembunyikan progress bar untuk selesai loading
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailCartActivity.this, "Ups, failure to order product", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -217,15 +226,65 @@ public class DetailCartActivity extends AppCompatActivity implements DatePickerD
                     if(task.isSuccessful()) {
                         // sembunyikan progress bar untuk selesai loading
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailCartActivity.this, "Berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailCartActivity.this, "Successfully to order this product", Toast.LENGTH_SHORT).show();
                         binding.btnOrder.setVisibility(View.GONE);
                     } else {
                         // sembunyikan progress bar untuk selesai loading
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailCartActivity.this, "Ups, tidak berhasil melakukan pemesanan produk", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailCartActivity.this, "Ups, Failure to order this product", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_proof_payment, menu);
+
+        // Sembunyikan ikon accept, karena tidak digunakan pada halaman ini
+        MenuItem item = menu.findItem(R.id.menu_accept).setVisible(false);
+
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+       if (item.getItemId() == R.id.menu_delete) {
+            // hapus riwayat cart
+           showAlertDeleteDialog();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAlertDeleteDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Delete Cart")
+                .setMessage("Are you sure want delete this cart ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
+                    deleteHistoryPayment();
+                })
+                .setNegativeButton("NO", null)
+                .setIcon(R.drawable.ic_baseline_delete_24)
+                .show();
+    }
+
+    private void deleteHistoryPayment() {
+        FirebaseFirestore
+                .getInstance()
+                .collection("cart")
+                .document(cartId)
+                .delete()
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        Toast.makeText(DetailCartActivity.this, "This Product successfully deleted from your cart", Toast.LENGTH_SHORT).show();
+                        binding.btnOrder.setVisibility(View.GONE);
+                    } else {
+                        Toast.makeText(DetailCartActivity.this, "This Product failure to deleted from your cart", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
 
     @Override
     public boolean onSupportNavigateUp() {

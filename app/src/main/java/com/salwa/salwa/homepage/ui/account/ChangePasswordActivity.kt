@@ -59,10 +59,10 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private fun showSuccessDialog() {
         val dialog = AlertDialog.Builder(this)
-        dialog.setTitle("Cek Email Anda")
-        dialog.setMessage("Email telah dikonfirmasi, silahkan cek email yang telah kami kirimkan pada email anda untuk mengubah Password")
+        dialog.setTitle("Check your Email Address")
+        dialog.setMessage("Email has been confirmed, please check your email address to change password")
         dialog.setIcon(R.drawable.ic_baseline_check_circle_24)
-        dialog.setPositiveButton("YA"){ it,_ ->
+        dialog.setPositiveButton("YES"){ it,_ ->
             // sign out dari firebase autentikasi
             FirebaseAuth.getInstance().signOut()
             // go to login activity

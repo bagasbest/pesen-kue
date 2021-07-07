@@ -4,21 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homepage.ui.order.OrderFragment">
-
+    tools:context=".homepage.ui.account.admin.ManageOrderActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvOrder"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="57dp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/item_order" />
-
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -34,7 +30,7 @@
         android:id="@+id/noData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You Dont Have\nOrder History"
+        android:text="Belum Ada Riwayat Pemesanan"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="32sp"

@@ -1,5 +1,6 @@
 package com.salwa.salwa.homepage.ui.home;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.databinding.FragmentProductBinding;
 
 
@@ -36,11 +42,26 @@ public class ProductFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentProductBinding.inflate(inflater, container, false);
 
+        // get user name
+        getUserName();
 
         // show hide selamat datang
         showHideNameAndGreeting();
 
         return binding.getRoot();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void getUserName() {
+        FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String name = "" + documentSnapshot.get("name");
+                    binding.nameTv.setText("Halo, " + name);
+                });
     }
 
     // inisiasi view model untuk menampilkan list produk

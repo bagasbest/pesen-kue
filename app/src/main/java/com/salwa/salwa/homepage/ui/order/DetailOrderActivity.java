@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -93,11 +92,11 @@ public class DetailOrderActivity extends AppCompatActivity {
 
         binding.title.setText(title);
         binding.description.setText(description);
-        binding.name.setText("Nama: " + bookedBy);
-        binding.totalProduct.setText("Total Produk: " + totalProduct);
+        binding.name.setText("Name: " + bookedBy);
+        binding.totalProduct.setText("Total Product: " + totalProduct +" pcs");
         binding.addressEt.setText(address);
-        binding.textView7.setText("No.Telepon: " + phone);
-        binding.price.setText("Total Harga: " + price);
+        binding.textView7.setText("Phone Number: " + phone);
+        binding.price.setText("Total Price: Rp" + price);
 
         Glide.with(this)
                 .load(productDp)
@@ -212,7 +211,7 @@ public class DetailOrderActivity extends AppCompatActivity {
         StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
         ProgressDialog mProgressDialog = new ProgressDialog(this);
 
-        mProgressDialog.setMessage("Mohon tunggu hingga proses selesai...");
+        mProgressDialog.setMessage("Please wait until progress finished...");
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.show();
         String imageFileName = "ProofPayment/" + title + "image_" + System.currentTimeMillis() + ".png";
@@ -229,13 +228,13 @@ public class DetailOrderActivity extends AppCompatActivity {
                                 })
                                 .addOnFailureListener(e -> {
                                     mProgressDialog.dismiss();
-                                    Toast.makeText(DetailOrderActivity.this, "Gagal mengunggah bukti pembayaran", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(DetailOrderActivity.this, "Failure to update payment proof", Toast.LENGTH_SHORT).show();
                                     Log.d("productDp", e.toString());
                                     binding.placeHolder.setVisibility(View.VISIBLE);
                                 }))
                 .addOnFailureListener(e -> {
                     mProgressDialog.dismiss();
-                    Toast.makeText(DetailOrderActivity.this, "Gagal mengunggah bukti pembayaran", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailOrderActivity.this, "Failure to update payment proof", Toast.LENGTH_SHORT).show();
                     Log.d("productDp", e.toString());
                     binding.placeHolder.setVisibility(View.VISIBLE);
                 });
@@ -265,56 +264,62 @@ public class DetailOrderActivity extends AppCompatActivity {
                     binding.bank.setVisibility(View.GONE);
                     // tampilkan dialog ketika berhasil mengunggah bukti pembayaran
                     new AlertDialog.Builder(this)
-                            .setTitle("Berhasil Mengunggah Bukti Pembayaran")
-                            .setMessage("Anda berhasil mengunggah bukti pembayaran produk ini, silahkan tunggu beberapa saat.\n\nAdmin akan mengecek bukti pembayaran yang anda kirimkan, setelah itu produk akan dikirimkan ke alamat anda")
-                            .setPositiveButton("YA", null)
+                            .setTitle("Success to upload Payment Proof")
+                            .setMessage("You have successfully uploaded proof of payment for this product, please wait a moment..\n\nThe admin will check the proof of payment you sent, after that the product will be sent to your address alamat")
+                            .setPositiveButton("YES", null)
                             .setIcon(R.drawable.ic_baseline_check_circle_24)
                             .show();
                 })
                 .addOnFailureListener(e -> {
                     binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(DetailOrderActivity.this, "Gagal mengunggah bukti pembayaran", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailOrderActivity.this, "Failure to update payment proof", Toast.LENGTH_SHORT).show();
                 });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_proof_payment, menu);
+        inflater.inflate(R.menu.menu_order, menu);
 
-        // jika bukan admin maka sembunyikan ikon ceklis untuk memverifikasi pembayaran
-        MenuItem item = menu.findItem(R.id.menu_accept).setVisible(false);
-        // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
-        MenuItem item2 = menu.findItem(R.id.menu_delete).setVisible(false);
-
-        // SELLER BISA MEMVERIFIKASI ORDER YANG BERSTATUS DALAM PROSES
-        if(status.equals("Dalam Proses")) {
-            // CEK APAKAH SELLER ATAU BUKAN
-           if(uid.equals(shopId)) {
-               item.setVisible(true);
-           }
-        }
+        // jika bukan admin maka sembunyikan accept payment
+        MenuItem item = menu.findItem(R.id.menu_accept_payment).setVisible(false);
+        // jika bukan admin maka sembunyikan accept decline payment
+        MenuItem item2 = menu.findItem(R.id.menu_decline_payment).setVisible(false);
+        // jika bukan admin maka sembunyikan cod
+        MenuItem item3 = menu.findItem(R.id.menu_cod).setVisible(false);
+        // jik bukan admin maka sembunyikan order finish
 
 
-        // jika status pembayaran = sudah membayar, maka pengguna dapat menghapus riwayat pembayaran
+        // tampilkan accept & decline payment, dan cod jika admin
         FirebaseFirestore
                 .getInstance()
-                .collection("order")
-                .document(orderId)
+                .collection("users")
+                .document(uid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if(("" + documentSnapshot.get("paymentStatus")).equals("Sudah Bayar")) {
+                    if(("" + documentSnapshot.get("role")).equals("admin")) {
+                        if(proofPayment.equals("COD")) {
+                            item3.setVisible(true);
+                        } else {
+                            item.setVisible(true);
+                        }
                         item2.setVisible(true);
                     }
                 });
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_accept) {
+        if (item.getItemId() == R.id.menu_accept_payment) {
             // tampilkan konfirmasi untuk menerima bukti pembayaran (khusus admin yang dapat melakukan)
             showConfirmDialog();
+        } else if (item.getItemId() == R.id.menu_decline_payment) {
+            // tampilkan konfirmasi sebelum menolak order
+            showDeclineDialog();
+        } else if(item.getItemId() == R.id.menu_cod) {
+            showCODDialog();
         }
         else if (item.getItemId() == R.id.menu_delete) {
             // hapus riwayat pembelian produk
@@ -323,11 +328,24 @@ public class DetailOrderActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void deleteHistoryPayment() {
+    private void showCODDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Konfirmasi Hapus Riwayat Pembayaran")
-                .setMessage("Apakah anada yakin ingin menghapus riwayat pembayaran produk ini ?")
-                .setPositiveButton("YA", (dialogInterface, i) -> {
+                .setTitle("Confirm Payment Status as COD")
+                .setMessage("Are you sure you want to confirm this order as COD ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
+                    // order produk
+                    updateStatusOrder();
+                })
+                .setNegativeButton("NO", null)
+                .setIcon(R.drawable.ic_baseline_check_circle_24)
+                .show();
+    }
+
+    private void showDeclineDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Decline Payment")
+                .setMessage("Are you sure want to decline this order ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
                     // Hapus riwayat pembayaran produk ini
                     FirebaseFirestore
                             .getInstance()
@@ -342,7 +360,33 @@ public class DetailOrderActivity extends AppCompatActivity {
                                 }
                             });
                 })
-                .setNegativeButton("TIDAK", null)
+                .setNegativeButton("NO", null)
+                .setIcon(R.drawable.ic_baseline_clear_24)
+                .show();
+    }
+
+    private void deleteHistoryPayment() {
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Delete History Order")
+                .setMessage("Are you sure want to delete history order this product ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
+                    // Hapus riwayat pembayaran produk ini
+                    FirebaseFirestore
+                            .getInstance()
+                            .collection("order")
+                            .document(orderId)
+                            .delete()
+                            .addOnCompleteListener(task -> {
+                                if(task.isSuccessful()) {
+                                    Toast.makeText(DetailOrderActivity.this, "Berhasil menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
+                                    binding.cod.setVisibility(View.GONE);
+                                    binding.bank.setVisibility(View.GONE);
+                                } else {
+                                    Toast.makeText(DetailOrderActivity.this, "Gagal menghapus riwayat pembayaran  produk " + title, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton("NO", null)
                 .setIcon(R.drawable.ic_baseline_delete_24)
                 .show();
     }
@@ -350,20 +394,20 @@ public class DetailOrderActivity extends AppCompatActivity {
     @SuppressLint("ResourceType")
     private void showConfirmDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Konfirmasi Status Pembayaran")
-                .setMessage("Apakah anda yakin kustomer telah melakukan transfer uang ke rekening anda untuk membeli produk ini ?")
-                .setPositiveButton("YA", (dialogInterface, i) -> {
+                .setTitle("Confirm Proof Payment")
+                .setMessage("Are you sure the customer has transferred money to your account to buy this product ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
                     // order produk
                     updateStatusOrder();
                 })
-                .setNegativeButton("TIDAK", null)
+                .setNegativeButton("NO", null)
                 .setIcon(R.drawable.ic_baseline_check_circle_24)
                 .show();
     }
 
     private void updateStatusOrder() {
         ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Mohon tunggu hingga proses selesai...");
+        mProgressDialog.setMessage("Please wait until progress finished...");
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.show();
 
@@ -391,6 +435,7 @@ public class DetailOrderActivity extends AppCompatActivity {
         deliverProduct.put("isPickup", isPickup);
         deliverProduct.put("pickupDate", pickupDate);
         deliverProduct.put("productId", productId);
+        deliverProduct.put("orderId", orderId);
         if(proofPayment.equals("COD")) {
             deliverProduct.put("cod","YA");
         }else {
@@ -421,17 +466,17 @@ public class DetailOrderActivity extends AppCompatActivity {
                             .addOnCompleteListener(task1 -> {
                                 if(task1.isSuccessful()) {
                                     mProgressDialog.dismiss();
-                                    Toast.makeText(DetailOrderActivity.this, "Berhasil memperbarui status pembayaran menjadi Sudah Membayar", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(DetailOrderActivity.this, "Successfully updated payment status to Already Paid", Toast.LENGTH_SHORT).show();
                                 }else {
                                     mProgressDialog.dismiss();
-                                    Toast.makeText(DetailOrderActivity.this, "Gagal memperbarui status pembayaran", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(DetailOrderActivity.this, "Failure to update proof payment", Toast.LENGTH_SHORT).show();
                                 }
                             });
 
                 })
                 .addOnFailureListener(e -> {
                     mProgressDialog.dismiss();
-                    Toast.makeText(DetailOrderActivity.this, "Gagal memperbarui status pembayaran", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailOrderActivity.this, "Failure to update proof payment", Toast.LENGTH_SHORT).show();
                 });
     }
 

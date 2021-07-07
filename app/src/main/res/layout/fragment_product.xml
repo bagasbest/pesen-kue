@@ -71,7 +71,7 @@
         android:id="@+id/noData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tidak Ada Produk\nTersedia"
+        android:text="There is Not Product\nAvailable"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="32sp"

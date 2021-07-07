@@ -13,12 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailDeliveryBinding;
-
-import java.text.DateFormat;
+import org.jetbrains.annotations.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
     private boolean isPickup;
     private String productId;
     private String cod;
+    private String orderId;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -81,12 +83,13 @@ public class DetailDeliveryActivity extends AppCompatActivity {
         isPickup = dm.isPickup();
         productId = dm.getProductId();
         cod = dm.getCod();
+        orderId = dm.getOrderId();
 
         binding.title.setText(title);
         binding.name.setText("Name: " + bookedBy);
         binding.totalProduct.setText("Total Quantity: " + totalProduct);
         binding.addressEt.setText(address);
-        binding.textView7.setText("No.Telepon: " + phone);
+        binding.textView7.setText("Phone Number: " + phone);
         binding.price.setText("Total Price: " + price);
 
         // JIKA PAYMENT METHOD = COD
@@ -126,14 +129,14 @@ public class DetailDeliveryActivity extends AppCompatActivity {
     private void deleteDelivieryHistory() {
         binding.deleteDelivery.setOnClickListener(view -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Konfirmasi Hapus Riwayat Delivery")
-                    .setMessage("Apakah anada yakin ingin menghapus riwayat delivery ini ?")
-                    .setPositiveButton("YA", (dialogInterface, i) -> {
+                    .setTitle("Confirm Delete Delivery")
+                    .setMessage("Are you sure want to delete this delivery ?")
+                    .setPositiveButton("YES", (dialogInterface, i) -> {
                         binding.progressBar.setVisibility(View.VISIBLE);
                         // hapus delivery dari database
                         deleteDeliveryFromDatabase();
                     })
-                    .setNegativeButton("TIDAK", null)
+                    .setNegativeButton("NO", null)
                     .setIcon(R.drawable.ic_baseline_delete_24)
                     .show();
         });
@@ -148,11 +151,11 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailDeliveryActivity.this, "Berhasil menghapus riwayat delivery ini", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailDeliveryActivity.this, "Successfully to delete this order", Toast.LENGTH_SHORT).show();
                         binding.deleteDelivery.setVisibility(View.GONE);
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailDeliveryActivity.this, "Gagal menghapus riwayat delivery ini", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailDeliveryActivity.this, "Failure to delete this order", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -188,14 +191,14 @@ public class DetailDeliveryActivity extends AppCompatActivity {
 
     private void showConfirmDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Konfirmasi Status Delivery")
-                .setMessage("Apakah anda yakin bahwa produk sudah anda kirim menuju alamat kustomer ?")
-                .setPositiveButton("YA", (dialogInterface, i) -> {
+                .setTitle("Confirmation Product Shipped")
+                .setMessage("Are you sure this product shipped ?")
+                .setPositiveButton("YES", (dialogInterface, i) -> {
                     binding.progressBar.setVisibility(View.VISIBLE);
                     // perbarui status delivery menjadi Sudah Dikirim
                     updateDeliveryStatus();
                 })
-                .setNegativeButton("TIDAK", null)
+                .setNegativeButton("NO", null)
                 .setIcon(R.drawable.ic_baseline_check_circle_24)
                 .show();
     }
@@ -222,7 +225,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                         setTransactionToShop();
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailDeliveryActivity.this, "Failure to update delivery status", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -255,7 +258,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                         reduceProductStock();
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
-                        Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DetailDeliveryActivity.this, "Failure to update delivery status", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -282,14 +285,33 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                             .update("quantity", String.valueOf(reduce))
                             .addOnCompleteListener(task -> {
                                if(task.isSuccessful()) {
-                                   binding.progressBar.setVisibility(View.GONE);
-                                   Toast.makeText(DetailDeliveryActivity.this, "Berhasil memperbarui status delivery menjadi Sudah Dikirim", Toast.LENGTH_SHORT).show();
-                                   binding.deleteDelivery.setVisibility(View.VISIBLE);
+
+                                   // SELESAIKAN ORDER = ORDER STAUS: FINISH
+                                   setFinishOrder();
+
                                } else {
                                    binding.progressBar.setVisibility(View.GONE);
-                                   Toast.makeText(DetailDeliveryActivity.this, "Gagal memperbarui delivery", Toast.LENGTH_SHORT).show();
+                                   Toast.makeText(DetailDeliveryActivity.this, "Failure to update delivery status", Toast.LENGTH_SHORT).show();
                                }
                             });
+                });
+    }
+
+    private void setFinishOrder() {
+        FirebaseFirestore
+                .getInstance()
+                .collection("order")
+                .document(orderId)
+                .update("paymentStatus", "Order Finished")
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailDeliveryActivity.this, "Success to update status product to shipped", Toast.LENGTH_SHORT).show();
+                        binding.deleteDelivery.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(DetailDeliveryActivity.this, "Failure to update status product to shipped", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 

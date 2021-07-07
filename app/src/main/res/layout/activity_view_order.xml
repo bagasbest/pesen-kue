@@ -31,7 +31,7 @@
         android:id="@+id/noData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Belum Ada Riwayat Pemesanan"
+        android:text="You Dont Have\nOrder History"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="32sp"

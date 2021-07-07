@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.salwa.salwa.LoginActivity
 import com.salwa.salwa.R
 import com.salwa.salwa.databinding.FragmentAccountBinding
+import com.salwa.salwa.homepage.ui.account.admin.AdminActivity
 
 
 class AccountFragment : Fragment() {
@@ -21,6 +22,7 @@ class AccountFragment : Fragment() {
     private var isAlreadyHaveShop = false
     private var isShopVerified = false
     private var uid: String? = null
+    private var isAdmin: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +36,51 @@ class AccountFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentAccountBinding.inflate(inflater, container, false)
         uid = FirebaseAuth.getInstance().currentUser?.uid
+        checkIsAdminOrNot()
         showUsername()
         return binding?.root
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun checkIsAdminOrNot() {
+        uid?.let {
+            FirebaseFirestore
+                .getInstance()
+                .collection("users")
+                .document(it)
+                .get()
+                .addOnSuccessListener { role ->
+                    isAdmin = "" + role.get("role") == "admin"
+                    if(isAdmin) {
+                        binding?.shop?.text = "Shop"
+                        return@addOnSuccessListener
+                    }
+                    // SELANJUTNYA JIKA BUKAN ADMIN, CEK APAKAH USER PUNYA SHOP ATAU TIDAK
+                    checkIsUserHaveShopOrNot()
+                }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun checkIsUserHaveShopOrNot() {
+        // CEK APAKAH USER SUDAH MEMILIKI SHOP ATAU BELUM
+            uid?.let {
+                FirebaseFirestore
+                    .getInstance()
+                    .collection("shop")
+                    .document(it)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        if(doc.exists()) {
+                            isAlreadyHaveShop = true
+                            binding?.shop?.text = "Shop"
+                            isShopVerified = "" + doc.get("status") == "verified"
+                        } else {
+                            isAlreadyHaveShop = false
+                            isShopVerified = false
+                        }
+                    }
+            }
     }
 
     @SuppressLint("SetTextI18n")
@@ -70,26 +115,7 @@ class AccountFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun clickShop() {
-        // CEK APAKAH PENGGUNA SUDAH MEMILIKI SHOP ATAU BELUM
-        uid?.let {
-            FirebaseFirestore
-                .getInstance()
-                .collection("shop")
-                .document(it)
-                .get()
-                .addOnSuccessListener { doc ->
-                    if(doc.exists()) {
-                        isAlreadyHaveShop = true
-                        binding?.shop?.text = "Shop"
-                        isShopVerified = "" + doc.get("status") == "verified"
-                    } else {
-                        isAlreadyHaveShop = false
-                        binding?.shop?.text = "Register to Seller"
-                        isShopVerified = false
-                    }
-            }
-        }
-
+        // JIKA SUDAH PUNYA SHOP MAKA MASUK KE HALAMAN SHOP, JIKA BELUM, MASUK KE HALAMAN REGISTER SHOP
         binding?.shop?.setOnClickListener {
             if(isAlreadyHaveShop) {
                 if(isShopVerified) {
@@ -97,7 +123,10 @@ class AccountFragment : Fragment() {
                 } else {
                     showDialogReviewed()
                 }
-            } else {
+            } else if(isAdmin) {
+                startActivity(Intent(activity, AdminActivity::class.java))
+            }
+            else {
                 startActivity(Intent(activity, CreateShopActivity::class.java))
             }
         }

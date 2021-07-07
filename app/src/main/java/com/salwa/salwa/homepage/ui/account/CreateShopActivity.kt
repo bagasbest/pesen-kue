@@ -144,7 +144,7 @@ class CreateShopActivity : AppCompatActivity() {
         val mStorageRef = FirebaseStorage.getInstance().reference
         val mProgressDialog = ProgressDialog(this)
 
-        mProgressDialog.setMessage("Mohon tunggu hingga proses selesai...")
+        mProgressDialog.setMessage("Please wait until progress finished...")
         mProgressDialog.setCanceledOnTouchOutside(false)
         mProgressDialog.show()
         val imageFileName = "shop_dp/image_" + System.currentTimeMillis() + ".png"

@@ -78,15 +78,23 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(productDp);
 
-            if(orderModel.getStatus().equals("Sudah Bayar")) {
-                view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
-                paymentStatus.setText("Status: Accepted");
-            } else if (orderModel.getStatus().equals("Dalam Proses")) {
-                view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
-                paymentStatus.setText("Status: Waiting Payment");
-            } else if (orderModel.getStatus().equals("COD")) {
-                view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
-                paymentStatus.setText("Status: COD");
+            switch (orderModel.getStatus()) {
+                case "Sudah Bayar":
+                    view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
+                    paymentStatus.setText("Status: Accepted");
+                    break;
+                case "Dalam Proses":
+                    view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
+                    paymentStatus.setText("Status: Waiting Payment");
+                    break;
+                case "COD":
+                    view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
+                    paymentStatus.setText("Status: COD");
+                    break;
+                case "Order Finished":
+                    view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
+                    paymentStatus.setText("Status: Order Finished");
+                    break;
             }
 
             view2.setOnClickListener(view -> {

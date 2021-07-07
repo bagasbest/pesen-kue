@@ -47,6 +47,7 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setPickup(document.getBoolean("isPickup"));
                                 deliveryModel.setProductId("" + document.get("productId"));
                                 deliveryModel.setCod("" + document.get("cod"));
+                                deliveryModel.setOrderId("" + document.get("orderId"));
 
                                 deliveryModelArrayList.add(deliveryModel);
                             }
@@ -91,6 +92,8 @@ public class DeliveryViewModel extends ViewModel {
                                 deliveryModel.setPickup(document.getBoolean("isPickup"));
                                 deliveryModel.setProductId("" + document.get("productId"));
                                 deliveryModel.setCod("" + document.get("cod"));
+                                deliveryModel.setOrderId("" + document.get("orderId"));
+
 
 
                                 deliveryModelArrayList.add(deliveryModel);
