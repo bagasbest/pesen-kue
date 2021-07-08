@@ -155,6 +155,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                         binding.deleteDelivery.setVisibility(View.GONE);
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
+                        Log.e("TAG", task.toString());
                         Toast.makeText(DetailDeliveryActivity.this, "Failure to delete this order", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -226,6 +227,7 @@ public class DetailDeliveryActivity extends AppCompatActivity {
                     } else {
                         binding.progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailDeliveryActivity.this, "Failure to update delivery status", Toast.LENGTH_SHORT).show();
+                        Log.e("TAG", task.toString());
                     }
                 });
     }

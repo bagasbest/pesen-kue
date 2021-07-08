@@ -81,7 +81,8 @@ public class DetailProductActivity extends AppCompatActivity {
         binding.title.setText(title);
         binding.description.setText(description);
         binding.price.setText("Rp. " + price);
-        binding.rating.setText(String.format("%.1f", likes) + " | " + personRated + " Rated");
+        binding.rating.setText(String.format("%.1f", likes));
+        binding.review.setText(" | " + personRated + " Review");
         binding.productQty.setText(quantity + " Pcs");
         binding.shopName.setText(shopName);
 
@@ -106,6 +107,12 @@ public class DetailProductActivity extends AppCompatActivity {
 
         // lihat review produk ini
         showReviewProduct();
+
+        // PEMILIK PRODUK TIDAK BISA MEMBELI PRODUK TOKONYA SENDIRI
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if(shopId.equals(uid)) {
+            binding.addToCart.setVisibility(View.GONE);
+        }
 
 
     }

@@ -86,11 +86,11 @@
             android:id="@+id/imageView7"
             android:layout_width="19dp"
             android:layout_height="14dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/image"
             android:src="@drawable/ic_baseline_star_rate_24"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/rating"
             app:layout_constraintTop_toBottomOf="@+id/price"
             app:tint="@color/secondary" />
 
@@ -143,9 +143,23 @@
             android:id="@+id/rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:text=" 5.0"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/price" />
+
+        <TextView
+            android:id="@+id/review"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
-            android:text=" 5.0 | 199 Kali terjual"
+            android:text=" | 0 Review"
             android:textColor="@color/black"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"

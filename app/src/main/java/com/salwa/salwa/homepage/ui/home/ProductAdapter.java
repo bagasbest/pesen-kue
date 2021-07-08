@@ -69,7 +69,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             titleTv.setText(productModel.getTitle());
             shopTv.setText(productModel.getShopName());
             priceTv.setText("Rp. " + productModel.getPrice());
-            ratingTv.setText(String.format("%.1f", productModel.getLikes()) + " | " + productModel.getPersonRated() +" Penilaian");
+            ratingTv.setText(String.format("%.1f", productModel.getLikes()));
 
             Glide.with(itemView.getContext())
                     .load(productModel.getImage())

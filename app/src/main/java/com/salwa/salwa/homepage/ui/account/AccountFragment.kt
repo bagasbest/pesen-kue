@@ -52,7 +52,7 @@ class AccountFragment : Fragment() {
                 .addOnSuccessListener { role ->
                     isAdmin = "" + role.get("role") == "admin"
                     if(isAdmin) {
-                        binding?.shop?.text = "Shop"
+                        binding?.shop?.text = "Admin"
                         return@addOnSuccessListener
                     }
                     // SELANJUTNYA JIKA BUKAN ADMIN, CEK APAKAH USER PUNYA SHOP ATAU TIDAK

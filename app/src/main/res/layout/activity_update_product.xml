@@ -13,10 +13,10 @@
 
         <ImageView
             android:id="@+id/imageView3"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_width="80dp"
+            android:layout_height="100dp"
             android:contentDescription="@string/image"
-            android:src="@drawable/logo_salwa"
+            android:src="@drawable/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
