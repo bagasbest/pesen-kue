@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.LongFunction;
 
 public class DetailOrderActivity extends AppCompatActivity {
 
@@ -287,25 +288,36 @@ public class DetailOrderActivity extends AppCompatActivity {
         MenuItem item2 = menu.findItem(R.id.menu_decline_payment).setVisible(false);
         // jika bukan admin maka sembunyikan cod
         MenuItem item3 = menu.findItem(R.id.menu_cod).setVisible(false);
-        // jik bukan admin maka sembunyikan order finish
+        // jika bukan admin maka sembunyikan delete order
+        MenuItem item4 = menu.findItem(R.id.menu_delete).setVisible(false);
 
 
-        // tampilkan accept & decline payment, dan cod jika admin
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if(("" + documentSnapshot.get("role")).equals("admin")) {
-                        if(proofPayment.equals("COD")) {
-                            item3.setVisible(true);
-                        } else {
-                            item.setVisible(true);
+        // tampilkan accept & decline payment, dan cod jika role == admin
+        if(status.equals("Belum Bayar") || status.equals("COD")) {
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if(("" + documentSnapshot.get("role")).equals("admin")) {
+                            if(proofPayment.equals("COD")) {
+                                item3.setVisible(true);
+                            } else {
+                                item.setVisible(true);
+                            }
+                            item2.setVisible(true);
                         }
-                        item2.setVisible(true);
-                    }
-                });
+                    });
+        }
+
+        // tampilkan delete jika status order = Order Finished
+        if(status.equals("Order Finished")){
+            item4.setVisible(true);
+            item.setVisible(false);
+            item2.setVisible(false);
+            item3.setVisible(false);
+        }
 
         return true;
     }
@@ -446,7 +458,7 @@ public class DetailOrderActivity extends AppCompatActivity {
         // UPDATE STATUS PEMBAYARAN MENJADI SUDAH MEMBAYAR
         Map<String, Object> payment = new HashMap<>();
         if(proofPayment.equals("COD")) {
-            payment.put("paymentStatus", "COD");
+            payment.put("paymentStatus", "COD Accepted");
         } else {
             payment.put("paymentStatus", "Sudah Bayar");
         }

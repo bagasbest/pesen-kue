@@ -67,7 +67,7 @@ public class OrderViewModel extends ViewModel {
             FirebaseFirestore
                     .getInstance()
                     .collection("order")
-                    .orderBy("paymentStatus", Query.Direction.ASCENDING)
+                    .orderBy("paymentStatus", Query.Direction.DESCENDING)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

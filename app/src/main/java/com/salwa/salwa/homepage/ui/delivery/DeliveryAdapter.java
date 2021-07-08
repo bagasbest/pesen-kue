@@ -2,6 +2,7 @@ package com.salwa.salwa.homepage.ui.delivery;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,9 +85,13 @@ public class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.Delive
                     .error(R.drawable.ic_baseline_broken_image_24)
                     .into(productDp);
 
+
             if(deliveryModel.getDeliveryStatus().equals("Sudah Dikirim")) {
                 view10.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
                 deliveryStatus.setText("Status: Shipped");
+            } else if(deliveryModel.getDeliveryStatus().equals("Belum Dikirim")) {
+                view10.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.belum_bayar));
+                deliveryStatus.setText("Status: Not Shipped Yet");
             }
 
 

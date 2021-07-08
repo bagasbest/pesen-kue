@@ -14,8 +14,10 @@ import android.view.View;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.R;
 import com.salwa.salwa.databinding.ActivityDetailDeliveryBinding;
@@ -176,7 +178,18 @@ public class DetailDeliveryActivity extends AppCompatActivity {
             // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN IKON VERIFIKASI BUKTI PEMBAYARAN
            if(shopId.equals(uid)){
                item.setVisible(true);
+               return true;
            }
+           FirebaseFirestore
+                   .getInstance()
+                   .collection("users")
+                   .document(uid)
+                   .get()
+                   .addOnSuccessListener(documentSnapshot -> {
+                       if(("" + documentSnapshot.get("role")).equals("admin")) {
+                           item.setVisible(true);
+                       }
+                   });
         }
         return true;
     }

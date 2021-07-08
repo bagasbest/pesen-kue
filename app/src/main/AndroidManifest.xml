@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Salwa">
-        <activity android:name=".homepage.ui.account.admin.ManageOrderActivity"></activity>
+        <activity android:name=".homepage.ui.account.delivery.DeliveryActivity"></activity>
+        <activity android:name=".homepage.ui.account.admin.ManageOrderActivity" />
         <activity android:name=".homepage.ui.account.admin.AdminListDetailActivity" />
         <activity android:name=".homepage.ui.account.admin.AdminListActivity" />
         <activity android:name=".homepage.ui.account.admin.AdminActivity" />

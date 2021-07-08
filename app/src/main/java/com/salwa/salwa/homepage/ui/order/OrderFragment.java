@@ -12,8 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.salwa.salwa.databinding.FragmentOrderBinding;
 
 public class OrderFragment extends Fragment {
@@ -25,7 +23,8 @@ public class OrderFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkIsAdminOrNot();
+        initRecyclerView();
+        initViewModel();
     }
 
     @Override
@@ -43,31 +42,6 @@ public class OrderFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void checkIsAdminOrNot() {
-        // CEK APAKAH USER YANG SEDANG LOGIN ADMIN ATAU BUKAN, JIKA YA, MAKA TAMPILKAN tombol add product
-        binding.progressBar.setVisibility(View.VISIBLE);
-
-        FirebaseFirestore
-                .getInstance()
-                .collection("users")
-                .document(uid)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if(("" + document.get("role")).equals("admin")) {
-                            // user yang login adalah admin
-                            initRecyclerView();
-                            initViewModel("admin");
-                        } else {
-                            // user yang login adalah pengguna biasa/kustomer
-                            initRecyclerView();
-                            initViewModel("user");
-                        }
-                    }
-                });
-    }
-
     private void initRecyclerView() {
         binding.rvOrder.setLayoutManager(new LinearLayoutManager(getActivity()));
         orderAdapter = new OrderAdapter();
@@ -75,15 +49,13 @@ public class OrderFragment extends Fragment {
         binding.rvOrder.setAdapter(orderAdapter);
     }
 
-    private void initViewModel(String role) {
+    private void initViewModel() {
         // tampilkan daftar belanjaan di Halaman Order/Payment
         OrderViewModel orderViewModel = new ViewModelProvider(this).get(OrderViewModel.class);
 
-        if (role.equals("admin")) {
-            orderViewModel.setOrderListByAdminSide();
-        } else {
-            orderViewModel.setOrderList(uid);
-        }
+
+        binding.progressBar.setVisibility(View.VISIBLE);
+        orderViewModel.setOrderList(uid);
         orderViewModel.getOrderList().observe(getViewLifecycleOwner(), orderList -> {
             if (orderList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);

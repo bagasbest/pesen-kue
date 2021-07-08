@@ -29,7 +29,7 @@ public class DeliveryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkIsSellerOrNot();
+        initViewModel();
     }
 
     @Override
@@ -47,40 +47,16 @@ public class DeliveryFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void checkIsSellerOrNot() {
-        // CEK APAKAH USER YANG SEDANG LOGIN SELLER ATAU BUKAN, JIKA YA, MAKA TAMPILKAN LIST SELURUH DELIVERY YANG MASUK BERDASARKAN SHOP ID
-        binding.progressBar.setVisibility(View.VISIBLE);
-
-        FirebaseFirestore
-                .getInstance()
-                .collection("shop")
-                .document(uid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                   if(documentSnapshot.exists()) {
-                       initViewModel("seller");
-                   }
-                   else {
-                       initViewModel("user");
-                   }
-                });
-    }
-
-    private void initViewModel(String role) {
-        // tampilkan daftar belanjaan di Halaman Order/Payment
+    private void initViewModel() {
+        // tampilkan daftar delivery
         DeliveryViewModel deliveryViewModel = new ViewModelProvider(this).get(DeliveryViewModel.class);
 
+        binding.progressBar.setVisibility(View.VISIBLE);
         binding.rvDelivery.setLayoutManager(new LinearLayoutManager(getActivity()));
         deliveryAdapter = new DeliveryAdapter();
         binding.rvDelivery.setAdapter(deliveryAdapter);
 
-        Log.d("TAG", role);
-
-        if (role.equals("seller")) {
-            deliveryViewModel.setDeliveryBySellerSide(uid);
-        } else {
-            deliveryViewModel.setDeliveryList(uid);
-        }
+        deliveryViewModel.setDeliveryList(uid);
         deliveryViewModel.getDeliveryList().observe(getViewLifecycleOwner(), deliveryList -> {
             if (deliveryList.size() > 0) {
                 binding.noData.setVisibility(View.GONE);

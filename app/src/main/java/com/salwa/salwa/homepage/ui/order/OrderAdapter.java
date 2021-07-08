@@ -91,6 +91,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                     view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
                     paymentStatus.setText("Status: COD");
                     break;
+                case "COD Accepted":
+                    view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.dalam_proses));
+                    paymentStatus.setText("Status: COD Accepted");
+                    break;
                 case "Order Finished":
                     view3.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.sudah_bayar));
                     paymentStatus.setText("Status: Order Finished");

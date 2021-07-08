@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.salwa.salwa.databinding.ActivityShopBinding
+import com.salwa.salwa.homepage.ui.account.delivery.DeliveryActivity
 import com.salwa.salwa.homepage.ui.account.select_product.SelectProductActivity
 import com.salwa.salwa.homepage.ui.account.view_order.ViewOrderActivity
 import com.salwa.salwa.homepage.ui.home.AddProductActivity
@@ -26,6 +27,15 @@ class ShopActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ShopViewModel
 
+    override fun onResume() {
+        super.onResume()
+        // TAMPILKAN TOTAL PROFIT BULAN INI
+        getProfitThisMonth()
+
+        // TAMPILKAN PRODUK TERJUAL BULAN INI
+        getSoldProductThisMonth()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityShopBinding.inflate(layoutInflater)
@@ -39,13 +49,7 @@ class ShopActivity : AppCompatActivity() {
         // TAMPILKAN NAMA TOKO
         displayShopName()
 
-        // TAMPILKAN TOTAL PROFIT BULAN INI
-        getProfitThisMonth()
-
-        // TAMPILKAN PRODUK TERJUAL BULAN INI
-        getSoldProductThisMonth()
-
-        // TAMBAH PRODUK BARU
+        // KLIK TAMBAH PRODUK BARU
         binding?.addProduct?.setOnClickListener {
             val intent = Intent(this, AddProductActivity::class.java)
             intent.putExtra(AddProductActivity.EXTRA_SHOP_NAME, shopName)
@@ -53,14 +57,22 @@ class ShopActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // SELECT PRODUCT
+        // KLIK SELECT PRODUCT
         binding?.selectProduct?.setOnClickListener {
             startActivity(Intent(this, SelectProductActivity::class.java))
         }
 
-        // VIEW ORDER
+        // KLIK VIEW ORDER
         binding?.viewOrder?.setOnClickListener {
             startActivity(Intent(this, ViewOrderActivity::class.java))
+        }
+
+        // KLIK DELIVERY
+        binding?.deliveryBtn?.setOnClickListener {
+            val intent = Intent(this, DeliveryActivity::class.java)
+            intent.putExtra(DeliveryActivity.EXTRA_ROLE, "seller")
+            intent.putExtra(DeliveryActivity.EXTRA_UID, uid)
+            startActivity(intent)
         }
 
     }

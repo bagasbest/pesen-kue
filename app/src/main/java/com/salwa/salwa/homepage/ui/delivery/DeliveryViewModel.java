@@ -108,6 +108,49 @@ public class DeliveryViewModel extends ViewModel {
         }
     }
 
+    // menampilkan semua delivery (khusus admin
+    public void setAllDelivery() {
+        deliveryModelArrayList.clear();
+        try {
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("delivery")
+                    .orderBy("deliveryStatus", Query.Direction.ASCENDING)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                DeliveryModel deliveryModel = new DeliveryModel();
+                                deliveryModel.setAddedAt("" + document.get("addedAt"));
+                                deliveryModel.setBookedBy("" + document.get("bookedBy"));
+                                deliveryModel.setPrice(Integer.parseInt("" + document.get("price")));
+                                deliveryModel.setProductDp("" + document.get("productDp"));
+                                deliveryModel.setAddress("" + document.get("address"));
+                                deliveryModel.setPhone("" + document.get("phone"));
+                                deliveryModel.setTitle("" + document.get("title"));
+                                deliveryModel.setTotalProduct(Integer.parseInt("" + document.get("totalProduct")));
+                                deliveryModel.setUserUid("" + document.get("userUid"));
+                                deliveryModel.setDeliveryStatus("" + document.get("deliveryStatus"));
+                                deliveryModel.setDeliveryId("" + document.get("deliveryId"));
+                                deliveryModel.setShopId("" + document.get("shopId"));
+                                deliveryModel.setPickupDate("" + document.get("pickupDate"));
+                                deliveryModel.setPickup(document.getBoolean("isPickup"));
+                                deliveryModel.setProductId("" + document.get("productId"));
+                                deliveryModel.setCod("" + document.get("cod"));
+                                deliveryModel.setOrderId("" + document.get("orderId"));
+
+                                deliveryModelArrayList.add(deliveryModel);
+                            }
+                            deliveryList.postValue(deliveryModelArrayList);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public LiveData<ArrayList<DeliveryModel>> getDeliveryList() {
         return deliveryList;

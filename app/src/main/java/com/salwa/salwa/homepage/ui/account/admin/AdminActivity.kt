@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.salwa.salwa.databinding.ActivityAdminBinding
+import com.salwa.salwa.homepage.ui.account.delivery.DeliveryActivity
 
 class AdminActivity : AppCompatActivity() {
 
@@ -23,6 +24,17 @@ class AdminActivity : AppCompatActivity() {
         // KLIK MANAGE ORDER
         clickManageOrder()
 
+        // KLIK DELIVERY
+        clickDelivery()
+
+    }
+
+    private fun clickDelivery() {
+        binding?.deliveryBtn?.setOnClickListener {
+            val intent = Intent(this, DeliveryActivity::class.java)
+            intent.putExtra(DeliveryActivity.EXTRA_ROLE, "admin")
+            startActivity(intent)
+        }
     }
 
     private fun clickManageOrder() {
